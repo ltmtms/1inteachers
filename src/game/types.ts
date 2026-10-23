@@ -20,7 +20,7 @@ export type EndingType =
   | 'career_change'
   | null
 
-export type SchoolFunding = '津貼/資助' | '直資 (DSS)' | '官立'
+export type SchoolFunding = '津貼/資助' | '直資 (DSS)'
 
 export interface School {
   name: string
