@@ -81,7 +81,7 @@ jobs:
 
 ## 學校資料來源
 
-遊戲內可抽籤的學校僅包含香港**津貼／資助**、**直資（DSS）**及**官立**中小學，不含私立或國際學校。
+遊戲內可抽籤的學校僅包含香港**津貼／資助**及**直資（DSS）**中小學，不含官立、私立或國際學校。
 
 中學參考組別（Band 1／2／3）及資助類別整理自 [StarSchools 全港中學 Banding 一覽](https://starschools.hk/admission/banding) 與 [香港中學一覽](https://starschools.hk/schools/directory/secondary)；小學名單參考 [香港小學一覽](https://starschools.hk/schools/directory/primary)。StarSchools 註明組別為參考性質，並非教育局官方學校標籤。完整欄位與引用見 `src/game/schools.ts`。
 

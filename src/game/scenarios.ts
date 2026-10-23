@@ -45,7 +45,7 @@ export function buildJumpTurn(): TurnContent {
   return {
     title: '睇 JUMP',
     narrative:
-      'JUMP 網站凌晨三點照樣開著，你捧住凍咖啡刷新頁面。小學職位多但「八達通老師」傳言不絕；中學薪金靚但科主任 Panel 會問到你靈魂深處。無論選邊，系統都會為你抽籤三間香港津貼／直資（DSS）或官立學校——Band 1 做夢、Band 3 歷練，參考組別資料來自 StarSchools。',
+      'JUMP 網站凌晨三點照樣開著，你捧住凍咖啡刷新頁面。小學職位多但「八達通老師」傳言不絕；中學薪金靚但科主任 Panel 會問到你靈魂深處。無論選邊，系統都會為你抽籤三間香港津貼／資助或直資（DSS）學校——Band 1 做夢、Band 3 歷練，參考組別資料來自 StarSchools。',
     choices: [
       choice('pri', '【小學】', '申請小學教席路線', 100, '無代價', emptyEffects),
       choice('sec', '【中學】', '申請中學教席路線', 100, '無代價', emptyEffects),
