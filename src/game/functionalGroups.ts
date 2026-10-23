@@ -1,13 +1,5 @@
-import type { Choice, GameState, TurnContent } from './types'
-import { pickOne, randomInt } from './rng'
-
-export type FunctionalGroupId =
-  | 'admin'
-  | 'it'
-  | 'academic'
-  | 'discipline'
-  | 'eca'
-  | 'counselling'
+import type { Choice, FunctionalGroupId, GameState, TurnContent } from './types'
+import { randomInt } from './rng'
 
 export const ADMIN_TENURE_YEARS = 5
 
@@ -231,8 +223,4 @@ export function assignGroupFromChoiceId(choiceId: string): FunctionalGroupId | n
     fg_join_admin: 'admin',
   }
   return map[choiceId] ?? null
-}
-
-export function pickIctNudgeGroup(rng: () => number): FunctionalGroupId {
-  return pickOne(rng, ['it', 'it', 'it', 'academic', 'eca'])
 }

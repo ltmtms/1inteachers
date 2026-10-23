@@ -1,5 +1,5 @@
 import type { Choice, GameState, TurnContent } from './types'
-import type { FunctionalGroupId } from './functionalGroups'
+import type { FunctionalGroupId } from './types'
 import { FUNCTIONAL_GROUP_LABELS } from './functionalGroups'
 import { randomInt } from './rng'
 
