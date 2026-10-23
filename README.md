@@ -69,7 +69,7 @@ jobs:
 
 1. **開始** → 自動出身抽取（大學、公開試百分位、主修、未有 PGDE）。
 2. **睇 JUMP** → 選小學或中學 → 抽三間學校 → 面試三部曲或轉下一間；全敗則 TA（$17k）。
-3. **校園修羅場** → 隨機事件（出卷、SBA、ESR、IT 雜務、PGDE、家長投訴、爭 Perm…）。
+3. **校園修羅場** → 隨機事件（出卷、SBA、執業牌照 CPD、數碼進修、AI 作弊疑雲、殺班寒冬、解約大逃殺、群組投訴、校本系統義工…）。
 4. **結局**：SAN 歸零、不續約失業、常額位勝利、轉行等。
 
 每回合頂部為即時狀態面板；行動後顯示 **【判定：成功／大成功／失敗／大失敗】**。進度自動存入 `localStorage`。可選 URL 參數 `?seed=12345` 固定 RNG 種子。
@@ -84,6 +84,20 @@ jobs:
 遊戲內可抽籤的學校僅包含香港**津貼／資助**及**直資（DSS）**中小學，不含官立、私立或國際學校。
 
 中學參考組別（Band 1／2／3）及資助類別整理自 [StarSchools 全港中學 Banding 一覽](https://starschools.hk/admission/banding) 與 [香港中學一覽](https://starschools.hk/schools/directory/secondary)；小學名單參考 [香港小學一覽](https://starschools.hk/schools/directory/primary)。StarSchools 註明組別為參考性質，並非教育局官方學校標籤。完整欄位與引用見 `src/game/schools.ts`。
+
+## 新聞情境來源（Sources）
+
+校園修羅場部分事件改編自香港教育界公開報道與政策文件，僅作遊戲敘事，不代表任何真實學校或個人：
+
+| 主題 | 參考 |
+| --- | --- |
+| 執業教師牌照續期、每三年約 150 小時 CPD、目標 2028/29 全面實施 | [RTHK 2026-01-30](https://news.rthk.hk/rthk/ch/component/k2/1842095-20260130.htm)、[RTHK 2026-02-12](https://news.rthk.hk/rthk/ch/component/k2/1843634-20260212.htm)、[LegCo CB(3)60/2026](https://www.legco.gov.hk/yr2026/english/panels/ed/papers/ed20260206cb3-60-1-e.pdf) |
+| 強制數碼教育 CPD（150 小時中 30 小時為數碼）、每年 5 萬培訓位、每校一次性 $50 萬津貼 | RTHK 2026-06 相關報道（政策公布） |
+| 小學生疑用 AI 作弊、校方與教育局跟進 | [RTHK 2026-02-12](https://news.rthk.hk/rthk/ch/component/k2/1843634-20260212.htm)（施俊輝跟進校方情況） |
+| 津貼學校收生不足、殺班與編制壓力 | 星島／教育局學校規劃相關公布 |
+| 合約教師不續約、學生數下降下爭奪常額 | 同上及教師編制／收生趨勢評論 |
+| 家長 WhatsApp 群組投訴升級至教育局 | 校本投訴與社交媒體截圖外洩相關報道 |
+| STEM／IT 教師被要求義務搭建校本系統 | 數碼校政撥款與教師非教學工作負擔討論 |
 
 ## 授權
 
