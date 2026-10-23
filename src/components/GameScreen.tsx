@@ -61,7 +61,7 @@ export function GameScreen({ initialSeed }: Props) {
           香港教師生涯模擬器
         </h1>
         <p className="mt-1 text-lg text-[var(--text-muted)]">
-          1 in 80 Billion 終極教畜之路
+          1 in 80 Billion 終極教師之路
         </p>
         <p className="mt-6 text-sm leading-relaxed text-[var(--text-muted)]">
           黑色幽默 · 高難度 RNG · 百分位標籤 · 地獄面試三部曲 · 校園修羅場。
