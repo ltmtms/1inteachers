@@ -1,0 +1,208 @@
+.pixel-classroom {
+  background: linear-gradient(180deg, #e8dfd0 0%, #f5ebe0 55%, #d4c4a8 100%);
+}
+
+.pixel-classroom__wall {
+  position: absolute;
+  inset: 0 0 32%;
+  background: repeating-linear-gradient(
+    90deg,
+    #f0e6d8 0,
+    #f0e6d8 calc(var(--px) * 8),
+    #e8dfd0 calc(var(--px) * 8),
+    #e8dfd0 calc(var(--px) * 16)
+  );
+  border-bottom: calc(var(--px) * 0.5) solid #c4b59a;
+}
+
+.pixel-classroom__floor {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 32%;
+  background: repeating-linear-gradient(
+    90deg,
+    #c9a87a 0,
+    #c9a87a calc(var(--px) * 3),
+    #b89568 calc(var(--px) * 3),
+    #b89568 calc(var(--px) * 6)
+  );
+}
+
+.pixel-classroom__board {
+  position: absolute;
+  top: 14%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(var(--px) * 18);
+  height: calc(var(--px) * 8);
+  background: #2d5a3d;
+  border: calc(var(--px) * 0.75) solid #1a3525;
+  box-shadow:
+    0 calc(var(--px) * 0.5) 0 #1a3525,
+    inset 0 calc(var(--px) * -1) 0 rgb(0 0 0 / 0.15);
+}
+
+.pixel-classroom__chalk {
+  position: absolute;
+  height: calc(var(--px) * 0.5);
+  background: #fff;
+  left: calc(var(--px) * 1.5);
+  width: 0;
+}
+
+.pixel-classroom__chalk--1 {
+  top: calc(var(--px) * 1.5);
+  animation: pixel-classroom-line1 2.2s steps(4) infinite;
+}
+
+.pixel-classroom__chalk--2 {
+  top: calc(var(--px) * 3);
+  animation: pixel-classroom-line2 2.2s steps(4) infinite 0.35s;
+}
+
+.pixel-classroom__chalk--3 {
+  top: calc(var(--px) * 4.5);
+  animation: pixel-classroom-line3 2.2s steps(4) infinite 0.7s;
+}
+
+@keyframes pixel-classroom-line1 {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: calc(var(--px) * 8);
+  }
+}
+
+@keyframes pixel-classroom-line2 {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: calc(var(--px) * 6);
+  }
+}
+
+@keyframes pixel-classroom-line3 {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: calc(var(--px) * 10);
+  }
+}
+
+.pixel-classroom__desk {
+  position: absolute;
+  bottom: 22%;
+  width: calc(var(--px) * 5);
+  height: calc(var(--px) * 2.5);
+  background: #8b6914;
+  border: calc(var(--px) * 0.5) solid #6b5010;
+  box-shadow: 0 calc(var(--px) * 0.5) 0 #6b5010;
+}
+
+.pixel-classroom__desk--1 {
+  left: 8%;
+}
+
+.pixel-classroom__desk--2 {
+  left: 38%;
+}
+
+.pixel-classroom__desk--3 {
+  right: 8%;
+}
+
+.pixel-classroom__student {
+  position: absolute;
+  top: calc(var(--px) * -2.5);
+  left: calc(var(--px) * 1);
+  width: calc(var(--px) * 2.5);
+  height: calc(var(--px) * 2.5);
+  background: #f4c9a0;
+  border: calc(var(--px) * 0.5) solid #c49a70;
+  animation: pixel-classroom-nod 1.6s steps(2) infinite;
+}
+
+.pixel-classroom__student--b {
+  animation-delay: 0.5s;
+}
+
+@keyframes pixel-classroom-nod {
+  50% {
+    transform: translateY(calc(var(--px) * 0.5));
+  }
+}
+
+.pixel-classroom__teacher {
+  position: absolute;
+  bottom: 30%;
+  right: 14%;
+  width: calc(var(--px) * 5);
+  height: calc(var(--px) * 9);
+}
+
+.pixel-classroom__teacher-head {
+  position: absolute;
+  top: 0;
+  left: calc(var(--px) * 1);
+  width: calc(var(--px) * 3);
+  height: calc(var(--px) * 3);
+  background: #f4c9a0;
+  border: calc(var(--px) * 0.5) solid #c49a70;
+}
+
+.pixel-classroom__teacher-body {
+  position: absolute;
+  top: calc(var(--px) * 3);
+  left: calc(var(--px) * 0.5);
+  width: calc(var(--px) * 4);
+  height: calc(var(--px) * 4);
+  background: #4a7ab8;
+  border: calc(var(--px) * 0.5) solid #2e5080;
+}
+
+.pixel-classroom__teacher-arm {
+  position: absolute;
+  top: calc(var(--px) * 3.5);
+  right: calc(var(--px) * -1);
+  width: calc(var(--px) * 2);
+  height: calc(var(--px) * 1);
+  background: #4a7ab8;
+  transform-origin: left center;
+  animation: pixel-classroom-point 1s steps(3) infinite;
+}
+
+@keyframes pixel-classroom-point {
+  0%,
+  100% {
+    transform: rotate(-8deg);
+  }
+  50% {
+    transform: rotate(12deg);
+  }
+}
+
+.pixel-classroom__pointer {
+  position: absolute;
+  top: calc(var(--px) * 3.25);
+  right: calc(var(--px) * -3.5);
+  width: calc(var(--px) * 3);
+  height: calc(var(--px) * 0.5);
+  background: #f5d76e;
+  transform-origin: left center;
+  animation: pixel-classroom-pointer 1s steps(3) infinite;
+}
+
+@keyframes pixel-classroom-pointer {
+  0%,
+  100% {
+    transform: rotate(-5deg) translateX(0);
+  }
+  50% {
+    transform: rotate(8deg) translateX(calc(var(--px) * 1));
+  }
+}

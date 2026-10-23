@@ -3,7 +3,7 @@ import { resolveChoice, startNewGame } from '../game/engine'
 import { deserialize, serialize } from '../game/state'
 import { SAVE_KEY, type GameState } from '../game/types'
 import { ChoiceList } from './ChoiceList'
-import { PixelSchoolScene } from './PixelSchoolScene'
+import { PixelTeacherScene } from './PixelTeacherScene'
 import { StatusPanel } from './StatusPanel'
 
 function loadSave(): GameState | null {
@@ -56,7 +56,7 @@ export function GameScreen({ initialSeed }: Props) {
     const saved = loadSave()
     return (
       <div className="mx-auto flex min-h-dvh max-w-2xl flex-col justify-center px-4 py-12">
-        <PixelSchoolScene />
+        <PixelTeacherScene />
         <h1 className="mt-8 text-2xl font-bold leading-tight text-[var(--accent)] sm:text-3xl">
           香港教師生涯模擬器
         </h1>
@@ -109,7 +109,7 @@ export function GameScreen({ initialSeed }: Props) {
       <StatusPanel state={state} />
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6">
         <div className="mb-6 flex justify-center">
-          <PixelSchoolScene compact />
+          <PixelTeacherScene compact state={state} />
         </div>
         {state.phase === 'ending' ? (
           <article className="space-y-6">

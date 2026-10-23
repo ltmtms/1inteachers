@@ -35,6 +35,7 @@ export function PixelSchoolScene({ compact = false }: { compact?: boolean }) {
         <span className="pixel-chalk pixel-chalk--2" />
         <span className="pixel-chalk pixel-chalk--3" />
       </div>
+      <span className="pixel-scene__caption">校舍</span>
     </div>
   )
 }

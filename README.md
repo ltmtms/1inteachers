@@ -11,6 +11,21 @@ npm run dev
 
 瀏覽器打開終端顯示的本地地址（通常 `http://localhost:5173`）。
 
+### 像素場景（CSS 動畫）
+
+主選單頂部會每四秒循環：**校舍 → 課室 → 運動會 → 游泳**。進入遊戲後，場景會依當前回合標題／敘事自動切換（例如出卷／SBA／試教 → 課室；帶比賽／運動會 → 運動會；敘事含游泳／泳池等 → 游泳）。
+
+若要固定預覽某一場景，在 URL 加上 `pixelScene` 參數（可與 `seed` 並用）：
+
+| 參數值 | 場景 |
+| --- | --- |
+| `school` 或 `school-yard` | 校舍（預設戶外） |
+| `classroom` | 課室黑板授課 |
+| `sports` 或 `sports-day` | 運動會執哨 |
+| `swim` 或 `swimming-gala` | 游泳比賽池邊計時 |
+
+例：`http://localhost:5173/?pixelScene=classroom`
+
 ## 建置
 
 ```bash
