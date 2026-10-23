@@ -27,6 +27,10 @@ export function createInitialState(seed?: number): GameState {
     colleague: 50,
     renewPerm: 15,
     careerTurns: 0,
+    yearsAtSchool: 0,
+    functionalGroup: null,
+    functionalGroupOptOut: false,
+    adminInviteResolved: false,
     lastJudgment: null,
     lastJudgmentText: '',
     currentTurn: null,
@@ -114,8 +118,23 @@ export function serialize(state: GameState): string {
 
 export function deserialize(raw: string): GameState | null {
   try {
-    return JSON.parse(raw) as GameState
+    const parsed = JSON.parse(raw) as GameState
+    return migrateGameState(parsed)
   } catch {
     return null
+  }
+}
+
+/** 舊存檔補齊功能組欄位，並用 careerTurns 估算在校年資 */
+export function migrateGameState(state: GameState): GameState {
+  const yearsAtSchool =
+    state.yearsAtSchool ??
+    (state.phase === 'career' ? Math.max(0, state.careerTurns) : 0)
+  return {
+    ...state,
+    yearsAtSchool,
+    functionalGroup: state.functionalGroup ?? null,
+    functionalGroupOptOut: state.functionalGroupOptOut ?? false,
+    adminInviteResolved: state.adminInviteResolved ?? false,
   }
 }

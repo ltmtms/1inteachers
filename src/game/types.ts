@@ -20,6 +20,15 @@ export type EndingType =
   | 'career_change'
   | null
 
+/** 學校功能組別（津貼／直資中小學常見編制） */
+export type FunctionalGroupId =
+  | 'admin'
+  | 'it'
+  | 'academic'
+  | 'discipline'
+  | 'eca'
+  | 'counselling'
+
 export type SchoolFunding = '津貼/資助' | '直資 (DSS)'
 
 export interface School {
@@ -84,6 +93,14 @@ export interface GameState {
   colleague: number
   renewPerm: number
   careerTurns: number
+  /** 在現任學校累積年資（每完成一個職場回合 +1） */
+  yearsAtSchool: number
+  /** 所屬功能組；null 表示尚未加入或曾選擇暫不加入 */
+  functionalGroup: FunctionalGroupId | null
+  /** 玩家曾明確選擇暫不加入功能組 */
+  functionalGroupOptOut: boolean
+  /** 已處理過行政組邀請（接受、婉拒或押後） */
+  adminInviteResolved: boolean
   lastJudgment: Judgment | null
   lastJudgmentText: string
   currentTurn: TurnContent | null
@@ -96,4 +113,4 @@ export interface GameState {
   interviewMicroResult: Judgment | null
 }
 
-export const SAVE_KEY = 'hk-teacher-life-save-v1'
+export const SAVE_KEY = 'hk-teacher-life-save-v2'

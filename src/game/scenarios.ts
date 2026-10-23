@@ -1,4 +1,11 @@
 import { schoolTypeLabel } from './constants'
+import {
+  buildAdminGroupInviteTurn,
+  buildFunctionalGroupAssignmentTurn,
+  needsFunctionalGroupAssignment,
+  shouldOfferAdminInvite,
+} from './functionalGroups'
+import { pickGroupCareerEvent } from './groupScenarios'
 import type { Choice, GameState, School, TurnContent } from './types'
 import { pickOne, randomInt } from './rng'
 
@@ -764,6 +771,15 @@ const careerEvents: CareerEventBuilder[] = [
 ]
 
 export function pickCareerEvent(state: GameState, rng: () => number): TurnContent {
+  if (needsFunctionalGroupAssignment(state)) {
+    return buildFunctionalGroupAssignmentTurn(state, rng)
+  }
+  if (shouldOfferAdminInvite(state, rng)) {
+    return buildAdminGroupInviteTurn(state)
+  }
+  if (state.functionalGroup && rng() < 0.52) {
+    return pickGroupCareerEvent(state.functionalGroup, state, rng)
+  }
   const idx = randomInt(rng, 0, careerEvents.length - 1)
   return careerEvents[idx](state, rng)
 }
