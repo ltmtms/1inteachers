@@ -1,3 +1,4 @@
+import { schoolTypeLabel } from './constants'
 import type { Choice, GameState, School, TurnContent } from './types'
 import { pickOne, randomInt } from './rng'
 
@@ -44,7 +45,7 @@ export function buildJumpTurn(): TurnContent {
   return {
     title: '睇 JUMP',
     narrative:
-      'JUMP 網站凌晨三點照樣開著，你捧住凍咖啡刷新頁面。小學職位多但「八達通老師」傳言不絕；中學薪金靚但科主任 Panel 會問到你靈魂深處。無論選邊，系統都會為你抽籤三間「極具代表性」的香港學校——Band 1 做夢、Band 3 歷練、直資私立則係另一套遊戲規則。',
+      'JUMP 網站凌晨三點照樣開著，你捧住凍咖啡刷新頁面。小學職位多但「八達通老師」傳言不絕；中學薪金靚但科主任 Panel 會問到你靈魂深處。無論選邊，系統都會為你抽籤三間香港津貼／直資（DSS）或官立學校——Band 1 做夢、Band 3 歷練，參考組別資料來自 StarSchools。',
     choices: [
       choice('pri', '【小學】', '申請小學教席路線', 100, '無代價', emptyEffects),
       choice('sec', '【中學】', '申請中學教席路線', 100, '無代價', emptyEffects),
@@ -74,7 +75,7 @@ export function buildSchoolPickTurn(
   const pct = Math.max(5, 95 - s.difficulty)
   return {
     title: `面試志願 ${index + 1}／${schools.length}`,
-    narrative: `你鎖定「${s.name}」（${s.type}）。校園網站寫滿「全人教育」與「關愛文化」，但教員室傳聞話加班係常態。合約續約／轉 Perm 的江湖規矩，呢間學校難度指數 ${s.difficulty}／100。你可以硬闖面試三部曲，或者放棄轉下一間——全敗的話，系統會安排你做 TA（月薪 $17,000，職責：印卷、整水機、維護網頁）。`,
+    narrative: `你鎖定「${s.name}」（${schoolTypeLabel(s)}）。校園網站寫滿「全人教育」與「關愛文化」，但教員室傳聞話加班係常態。合約續約／轉 Perm 的江湖規矩，呢間學校難度指數 ${s.difficulty}／100。你可以硬闖面試三部曲，或者放棄轉下一間——全敗的話，系統會安排你做 TA（月薪 $17,000，職責：印卷、整水機、維護網頁）。`,
     percentileLines: [
       `根據歷年數據，類似背景獲取錄機率約 ${pct}%`,
       `面試難度分位：高於全港 ${s.difficulty}% 申請者會在此學校碰壁`,

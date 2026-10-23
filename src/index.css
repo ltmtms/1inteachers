@@ -1,12 +1,35 @@
 @import 'tailwindcss';
 
 @layer base {
+  :root {
+    --page-bg: #f6f1e6;
+    --page-bg-accent: #e8f4fc;
+    --panel-bg: #fffef8;
+    --panel-border: #d4c4a8;
+    --text-primary: #2c3e50;
+    --text-muted: #5c6b7a;
+    --accent: #c45c2a;
+    --accent-soft: #fef3e8;
+    --accent-border: #e8b88a;
+    --success: #2d7a4f;
+    --success-bg: #e8f5ec;
+    --warning: #b45309;
+    --shadow-soft: 0 2px 8px rgb(44 62 80 / 8%);
+  }
+
   html {
     @apply scroll-smooth;
   }
+
   body {
-    @apply m-0 min-h-dvh bg-zinc-950 text-zinc-100 antialiased;
+    margin: 0;
+    min-height: 100dvh;
+    color: var(--text-primary);
+    background:
+      radial-gradient(ellipse 120% 80% at 50% -20%, var(--page-bg-accent), transparent),
+      var(--page-bg);
     font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', system-ui,
       sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
 }

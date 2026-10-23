@@ -22,25 +22,25 @@ export function StatusPanel({ state }: { state: GameState }) {
 
   return (
     <header
-      className="sticky top-0 z-20 border-b border-amber-900/40 bg-zinc-950/95 backdrop-blur-md"
+      className="sticky top-0 z-20 border-b border-[var(--panel-border)] bg-[var(--panel-bg)]/95 backdrop-blur-md shadow-[var(--shadow-soft)]"
     >
       <div className="mx-auto max-w-2xl px-3 py-3">
-        <p className="mb-2 text-xs font-medium tracking-wide text-amber-500/90">
+        <p className="mb-2 text-xs font-medium tracking-wide text-[var(--accent)]">
           即時狀態面板 · 第 {state.turn} 回合
         </p>
         <dl className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-2">
           {rows.map(([label, value]) => (
             <div
               key={label}
-              className="flex flex-wrap gap-x-2 rounded-md bg-zinc-900/80 px-2 py-1.5"
+              className="flex flex-wrap gap-x-2 rounded-md border border-[var(--panel-border)]/60 bg-white/80 px-2 py-1.5"
             >
-              <dt className="shrink-0 text-zinc-500">【{label}】</dt>
-              <dd className="text-zinc-100">{value}</dd>
+              <dt className="shrink-0 text-[var(--text-muted)]">【{label}】</dt>
+              <dd className="text-[var(--text-primary)]">{value}</dd>
             </div>
           ))}
         </dl>
         {state.san <= 20 && state.phase !== 'ending' && (
-          <p className="mt-2 text-xs text-red-400 animate-pulse">
+          <p className="mt-2 text-xs text-red-600 animate-pulse">
             警告：SAN 偏低，接近精神崩潰（歸零即 Game Over）
           </p>
         )}
