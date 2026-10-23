@@ -3,6 +3,7 @@ import {
   PGDE_RATE_TEXT,
   PRIMARY_SCHOOLS,
   SECONDARY_SCHOOLS,
+  schoolTypeLabel,
   UNIVERSITIES,
 } from './constants'
 import { createRng, percentile, pickOne, randomInt } from './rng'
@@ -273,7 +274,12 @@ export function resolveChoice(
         createRng(next.seed + next.turn * 3),
       )
       if (passed) {
-        next = setContractJob(next, school.name, school.type, school.band)
+        next = setContractJob(
+          next,
+          school.name,
+          schoolTypeLabel(school),
+          school.band,
+        )
         next.phase = 'career'
         next.careerTurns = 0
         next.currentTurn = {

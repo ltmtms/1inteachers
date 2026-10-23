@@ -20,18 +20,13 @@ export type EndingType =
   | 'career_change'
   | null
 
-export type SchoolType =
-  | 'Band 1 津貼'
-  | 'Band 2 津貼'
-  | 'Band 3 津貼'
-  | '直資'
-  | '私立'
-  | '小學'
+export type SchoolFunding = '津貼/資助' | '直資 (DSS)' | '官立'
 
 export interface School {
   name: string
-  type: SchoolType
+  /** Reference band (中學) or gameplay tier (小學). */
   band: 1 | 2 | 3 | 0
+  funding: SchoolFunding
   difficulty: number
 }
 

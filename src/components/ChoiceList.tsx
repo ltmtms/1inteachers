@@ -19,27 +19,27 @@ export function ChoiceList({
 }: Props) {
   return (
     <div className="space-y-3">
-      <p className="text-sm font-medium text-zinc-400">行動選項</p>
+      <p className="text-sm font-medium text-[var(--text-muted)]">行動選項</p>
       {choices.map((c) => (
         <button
           key={c.id}
           type="button"
           disabled={disabled}
           onClick={() => onSelect(c.id)}
-          className="w-full rounded-lg border border-zinc-700 bg-zinc-900/90 px-4 py-3 text-left transition hover:border-amber-700/60 hover:bg-zinc-800 disabled:opacity-50"
+          className="w-full rounded-lg border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-left shadow-[var(--shadow-soft)] transition hover:border-[var(--accent-border)] hover:bg-white disabled:opacity-50"
         >
-          <span className="block font-medium text-amber-100">
+          <span className="block font-medium text-[var(--text-primary)]">
             {c.label}
           </span>
-          <span className="mt-1 block text-sm text-zinc-400">{c.description}</span>
-          <span className="mt-2 block text-xs text-zinc-500">
+          <span className="mt-1 block text-sm text-[var(--text-muted)]">{c.description}</span>
+          <span className="mt-2 block text-xs text-[var(--text-muted)]">
             成功率約 {c.successRate}% · 代價：{c.costs}
           </span>
         </button>
       ))}
       {allowCustom && (
-        <div className="rounded-lg border border-dashed border-zinc-600 bg-zinc-900/50 p-3">
-          <label className="text-sm text-zinc-400" htmlFor="custom-action">
+        <div className="rounded-lg border border-dashed border-[var(--panel-border)] bg-white/60 p-3">
+          <label className="text-sm text-[var(--text-muted)]" htmlFor="custom-action">
             D. 自訂行動
           </label>
           <div className="mt-2 flex flex-col gap-2 sm:flex-row">
@@ -49,19 +49,19 @@ export function ChoiceList({
               value={customValue}
               onChange={(e) => onCustomChange(e.target.value)}
               placeholder="例如：搵舊同學內推、請假面試另一間…"
-              className="flex-1 rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600"
+              className="flex-1 rounded-md border border-[var(--panel-border)] bg-white px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)]/60"
               disabled={disabled}
             />
             <button
               type="button"
               disabled={disabled || !customValue.trim()}
               onClick={() => onSelect('custom', customValue.trim())}
-              className="rounded-md bg-amber-800 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-40"
+              className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:brightness-110 disabled:opacity-40"
             >
               執行自訂
             </button>
           </div>
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-[var(--text-muted)]">
             自訂行動基礎成功率約 40%，結算為【判定：成功／大成功／失敗／大失敗】
           </p>
         </div>
