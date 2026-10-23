@@ -1,3 +1,4 @@
+import { functionalGroupLabel } from '../game/functionalGroups'
 import { rankLabel } from '../game/state'
 import type { GameState } from '../game/types'
 
@@ -13,6 +14,12 @@ export function StatusPanel({ state }: { state: GameState }) {
     ['職級', rankLabel(state.rank)],
     ['月薪', salary],
     ['任教學校', `${state.schoolName}（${state.schoolType}）`],
+    ...(state.phase === 'career' || state.phase === 'ending'
+      ? [
+          ['在校年資', `${state.yearsAtSchool} 年`],
+          ['功能組別', functionalGroupLabel(state.functionalGroup)],
+        ]
+      : []),
     ['教學熱誠', `${state.passion} / 100`],
     ['精神 SAN 值', `${state.san} / 100`],
     ['校長/管理層好感', `${state.principal} / 100`],

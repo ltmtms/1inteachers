@@ -18,6 +18,10 @@ import {
   pickCareerEvent,
 } from './scenarios'
 import {
+  assignGroupFromChoiceId,
+  isIctMajor,
+} from './functionalGroups'
+import {
   applyDelta,
   clampStat,
   createInitialState,
@@ -343,14 +347,43 @@ export function resolveChoice(
     }
 
     case 'career': {
-      if (
+      const isCareerIntro =
         choiceId === 'ta_start' ||
         choiceId === 'ta_go' ||
         choiceId === 'career_go'
-      ) {
+
+      if (isCareerIntro) {
         next.careerTurns = 0
+        next.yearsAtSchool = 0
       } else {
         next.careerTurns += 1
+        const skipTenureYear =
+          choiceId.startsWith('fg_assign_') || choiceId === 'fg_decline'
+        if (!skipTenureYear) {
+          next.yearsAtSchool += 1
+        }
+      }
+
+      if (choiceId === 'fg_decline') {
+        next.functionalGroupOptOut = true
+      }
+      const assigned = assignGroupFromChoiceId(choiceId)
+      if (assigned) {
+        next.functionalGroup = assigned
+        next.functionalGroupOptOut = false
+      }
+      if (choiceId === 'fg_join_admin' || choiceId === 'fg_decline_admin') {
+        next.adminInviteResolved = true
+      }
+      if (
+        choiceId === 'fg_decline' &&
+        isIctMajor(next.origin?.major) &&
+        createRng(next.seed + next.turn * 31)() < 0.38
+      ) {
+        next.functionalGroup = 'it'
+        next.functionalGroupOptOut = false
+        next.lastJudgmentText =
+          `${next.lastJudgmentText} 【校務：ICT 教師缺人，副校已將你列入資訊科技組名單。】`
       }
 
       if (choiceId === 'exit' && choice.effects) {
