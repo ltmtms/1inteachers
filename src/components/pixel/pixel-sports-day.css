@@ -1,0 +1,203 @@
+.pixel-sports {
+  background: linear-gradient(180deg, #9ed4f5 0%, #c8e8fa 42%, #8bc96a 100%);
+}
+
+.pixel-sports__sky {
+  position: absolute;
+  inset: 0 0 38%;
+}
+
+.pixel-sports__cloud {
+  position: absolute;
+  width: calc(var(--px) * 7);
+  height: calc(var(--px) * 2.5);
+  background: #fff;
+  box-shadow:
+    calc(var(--px) * 2) calc(var(--px) * -1) 0 #fff,
+    calc(var(--px) * 4) 0 0 #fff;
+  opacity: 0.92;
+  animation: pixel-sports-cloud 14s linear infinite;
+}
+
+.pixel-sports__cloud--a {
+  top: 16%;
+  left: 10%;
+}
+
+.pixel-sports__cloud--b {
+  top: 24%;
+  left: 58%;
+  animation-duration: 18s;
+  animation-delay: -5s;
+}
+
+@keyframes pixel-sports-cloud {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(20px);
+  }
+}
+
+.pixel-sports__bunting {
+  position: absolute;
+  top: 8%;
+  left: 5%;
+  right: 5%;
+  height: calc(var(--px) * 3);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 calc(var(--px) * 1);
+}
+
+.pixel-sports__bunting span {
+  width: calc(var(--px) * 2);
+  height: calc(var(--px) * 2);
+  background: #e85d4a;
+  animation: pixel-sports-flag 0.9s steps(2) infinite;
+}
+
+.pixel-sports__bunting span:nth-child(2) {
+  background: #f5d76e;
+  animation-delay: 0.15s;
+}
+
+.pixel-sports__bunting span:nth-child(3) {
+  background: #4a7ab8;
+  animation-delay: 0.3s;
+}
+
+.pixel-sports__bunting span:nth-child(4) {
+  background: #8bc96a;
+  animation-delay: 0.45s;
+}
+
+@keyframes pixel-sports-flag {
+  50% {
+    transform: translateY(calc(var(--px) * 0.5));
+  }
+}
+
+.pixel-sports__track {
+  position: absolute;
+  bottom: 18%;
+  left: 8%;
+  right: 8%;
+  height: calc(var(--px) * 10);
+  background: #c45c3e;
+  border: calc(var(--px) * 0.75) solid #a04830;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 calc(var(--px) * 2) #8b4528;
+}
+
+.pixel-sports__runner {
+  position: absolute;
+  bottom: 34%;
+  width: calc(var(--px) * 3);
+  height: calc(var(--px) * 5);
+  animation: pixel-sports-run 1.4s steps(4) infinite;
+}
+
+.pixel-sports__runner--a {
+  left: 22%;
+}
+
+.pixel-sports__runner--b {
+  left: 48%;
+  animation-delay: 0.35s;
+}
+
+.pixel-sports__runner-body {
+  display: block;
+  width: calc(var(--px) * 2.5);
+  height: calc(var(--px) * 4);
+  background: #fff;
+  border: calc(var(--px) * 0.5) solid #c4b59a;
+  box-shadow:
+    calc(var(--px) * 0.5) calc(var(--px) * 3.5) 0 #3d3d3d,
+    calc(var(--px) * 1.5) calc(var(--px) * 3.5) 0 #3d3d3d;
+}
+
+@keyframes pixel-sports-run {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(calc(var(--px) * 6));
+  }
+}
+
+.pixel-sports__teacher {
+  position: absolute;
+  bottom: 22%;
+  right: 10%;
+  width: calc(var(--px) * 6);
+  height: calc(var(--px) * 10);
+}
+
+.pixel-sports__teacher-head {
+  position: absolute;
+  top: 0;
+  left: calc(var(--px) * 1.5);
+  width: calc(var(--px) * 3);
+  height: calc(var(--px) * 3);
+  background: #f4c9a0;
+  border: calc(var(--px) * 0.5) solid #c49a70;
+}
+
+.pixel-sports__teacher-body {
+  position: absolute;
+  top: calc(var(--px) * 3);
+  left: calc(var(--px) * 1);
+  width: calc(var(--px) * 4);
+  height: calc(var(--px) * 4);
+  background: #e85d4a;
+  border: calc(var(--px) * 0.5) solid #b83a28;
+}
+
+.pixel-sports__clipboard {
+  position: absolute;
+  top: calc(var(--px) * 3.5);
+  left: calc(var(--px) * -2);
+  width: calc(var(--px) * 2.5);
+  height: calc(var(--px) * 3);
+  background: #f5e6c8;
+  border: calc(var(--px) * 0.5) solid #c4b59a;
+  animation: pixel-sports-clipboard 2s steps(2) infinite;
+}
+
+@keyframes pixel-sports-clipboard {
+  50% {
+    transform: rotate(-6deg);
+  }
+}
+
+.pixel-sports__whistle {
+  position: absolute;
+  top: calc(var(--px) * 1.5);
+  right: 0;
+  width: calc(var(--px) * 1.5);
+  height: calc(var(--px) * 1.5);
+  background: #f5d76e;
+  border-radius: 50%;
+  animation: pixel-sports-whistle 0.5s steps(2) infinite;
+  box-shadow: calc(var(--px) * 0.5) calc(var(--px) * 0.5) 0 #c9a83a;
+}
+
+@keyframes pixel-sports-whistle {
+  0%,
+  70% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  85% {
+    transform: scale(1.3);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
