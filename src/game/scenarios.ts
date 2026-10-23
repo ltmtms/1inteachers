@@ -572,6 +572,195 @@ const careerEvents: CareerEventBuilder[] = [
     ],
     allowCustom: true,
   }),
+  // News: practising teacher licence renewal ≤3yr, ~150 CPD hrs/3yr, target 2028/29 — RTHK, SCMP, LegCo CB(3)60/2026
+  (state, rng) => ({
+    title: '執業牌照三週年審',
+    narrative: `教育局電郵彈出：「執業教師須每三年續牌，三年內累積約一百五十小時持續專業發展。」副校在 WhatsApp 群組補刀：「二〇二八／二九全面實施，但今年先試水啦。」你翻開 ${state.schoolName} 的 TDD 紀錄——去年暑假帶隊算唔算？夜間兼讀 PGDE 的課堂算不算？同時要交教案、改卷、回家長訊息。系統提示：你的 CPD 時數分位低於全港 ${randomInt(rng, 35, 65)}% 同行，而人事部暗示「續約會睇專業進修紀錄」。教員室有人笑：「以前教書係執業，現係執業要考牌，考牌仲要喺放學後考。」`,
+    percentileLines: [`CPD 達標率全港分位：約 ${randomInt(rng, 40, 72)}%`],
+    choices: [
+      choice('marathon', '[硬刷] 週末連環進修班', '時數先過關', 58, 'SAN -20', {
+        大成功: { renewPerm: 12, principal: 10, san: -8 },
+        成功: { renewPerm: 6, san: -15 },
+        失敗: { san: -22, passion: -6 },
+        大失敗: { san: -30, principal: -8 },
+      }),
+      choice('paperwork', '[文書] 把帶隊交流全部填表申報', '行政流', 62, '體力 -1', {
+        大成功: { principal: 15, renewPerm: 8 },
+        成功: { principal: 8, renewPerm: 4 },
+        失敗: { principal: -5, san: -10 },
+        大失敗: { principal: -12, colleague: -8 },
+      }),
+      choice('ignore', '[觀望] 等政策細節再講', '賭局', 44, '續約率 -?', {
+        大成功: { san: 8, passion: 5 },
+        成功: { san: 3 },
+        失敗: { renewPerm: -12, principal: -10 },
+        大失敗: { renewPerm: -20, principal: -18 },
+      }),
+    ],
+    allowCustom: true,
+  }),
+  // News: compulsory digital CPD — 30/150 hrs digital, 50k training places/yr, $500k/school grant — RTHK Jun 2026
+  (state, rng) => ({
+    title: '數碼 CPD 三十小時',
+    narrative: `Staff Meeting 投影機亮出「強制數碼教育」：三年一百五十小時 CPD 入面，至少三十小時要係數碼素養——AI 倫理、數據私隱、校本平台操作，樣樣都要打卡。局方話每年有五萬個培訓位，每間津貼／直資學校仲有一次性五十萬撥款買設備；但 ${state.schoolName} 的 IT 同事苦笑：「錢係買伺服器，唔係買你放工時間。」校長宣布下學期「全體老師要學生成式 AI 備課」，你心想自己連 Excel 樞紐表都未學完。網上課程排到晚上十點，與 PGDE 撞期；唔報又怕續牌被問。`,
+    percentileLines: [`數碼培訓完成率分位：${randomInt(rng, 38, 68)}%`],
+    choices: [
+      choice('volunteer', '[搶先] 報名做校本數碼種子老師', '曝光 + 工時', 52, 'SAN -15', {
+        大成功: { principal: 20, renewPerm: 10, passion: 5 },
+        成功: { principal: 10, san: -10 },
+        失敗: { san: -18, colleague: -6 },
+        大失敗: { san: -26, principal: -8 },
+      }),
+      choice('online', '[最低] 只睇網上錄影湊足 30 小時', '務實', 68, '熱誠 -5', {
+        大成功: { san: -3, renewPerm: 5 },
+        成功: { san: -8, passion: -3 },
+        失敗: { principal: -8 },
+        大失敗: { principal: -15, renewPerm: -8 },
+      }),
+      choice('union', '[反映] 經教協要求澄清工時', '制度', 40, '校長 視結果', {
+        大成功: { colleague: 15, passion: 8 },
+        成功: { colleague: 6 },
+        失敗: { principal: -15 },
+        大失敗: { principal: -25, renewPerm: -10 },
+      }),
+    ],
+    allowCustom: true,
+  }),
+  // News: primary pupils suspected AI cheating — school/EDB follow-up — RTHK Feb 2026
+  (state, rng) => ({
+    title: '小學 AI 作文疑雲',
+    narrative: `有家長在 ${state.schoolName} 家長群組貼出兒童「讀書報告」：用詞老練、段落工整，懷疑係 ChatGPT 代筆。訊息半日內轉載過千，傳媒標題預覽已寫好「AI 作弊疑雲」。校長召開緊急會議：教育局要求校方跟進，可能要交調查報告。你負責該班導修——學生當面話「係自己寫」，但手機相簿有「複製提示詞」截圖。若嚴查可能得罪家長；若輕放又怕成為全港首例。同事 whisper：「中學 SBA 查咗幾年，點知小學都係戰場。」`,
+    percentileLines: [`校本 AI 舞弊調查壓力分位：${randomInt(rng, 55, 85)}%`],
+    choices: [
+      choice('oral', '[當面] 口頭抽查理解', '合規路線', 56, 'SAN -12', {
+        大成功: { principal: 14, renewPerm: 6 },
+        成功: { principal: 6 },
+        失敗: { colleague: -10, san: -14 },
+        大失敗: { principal: -12, san: -20 },
+      }),
+      choice('parent', '[和談] 約家長三方會面', '人際', 50, '熱誠 -5', {
+        大成功: { principal: 10, colleague: 8 },
+        成功: { principal: 4 },
+        失敗: { san: -12, passion: -8 },
+        大失敗: { principal: -18, san: -18 },
+      }),
+      choice('policy', '[推搪] 等教育局指引', '觀望', 45, '風險自負', {
+        大成功: { san: 5 },
+        成功: {},
+        失敗: { principal: -14, renewPerm: -10 },
+        大失敗: { principal: -22, renewPerm: -18 },
+      }),
+    ],
+    allowCustom: true,
+  }),
+  // News: aided schools thin enrolment, class reduction / downsizing — StarSchools, EDB planning
+  (state, rng) => ({
+    title: '殺班與收生寒冬',
+    narrative: `新學年編班表出爐：${state.schoolName} 中一只得四班，較去年少一班；傳聞「殺班」後每班人數仍要逼近上限，否則再下學年可能合併級別。教員室瀰漫「誰會被調走」的氣氛——津貼學校編制與收生掛鈎，空班即空錢。校長在早會強調「做好招生開放日」，暗示老師週末要返學當導賞員。你睇住自己的合約到期日，同層有兩位同事已收到「來季可能調整聘用」的口頭通知。星島標題你未敢打開：「收生寒冬下的津貼校生存戰。」`,
+    percentileLines: [`收生達標率分位：低於 ${randomInt(rng, 45, 70)}% 同類學校`],
+    choices: [
+      choice('open_day', '[衝刺] 周末招生義工', '校長好感', 64, 'SAN -16', {
+        大成功: { principal: 18, renewPerm: 8 },
+        成功: { principal: 8, san: -12 },
+        失敗: { san: -18, passion: -5 },
+        大失敗: { san: -26, principal: -6 },
+      }),
+      choice('transfer', '[自保] 暗中投其他校', '續約賭', 55, '熱誠 -3', {
+        大成功: { san: 10, renewPerm: 5 },
+        成功: { san: 4 },
+        失敗: { principal: -10 },
+        大失敗: { principal: -20, colleague: -12 },
+      }),
+      choice('share', '[共渡] 與同事分工減班務', '人緣', 52, '人緣 視結果', {
+        大成功: { colleague: 18, san: 5 },
+        成功: { colleague: 8 },
+        失敗: { colleague: -12 },
+        大失敗: { colleague: -22, san: -10 },
+      }),
+    ],
+    allowCustom: true,
+  }),
+  // News: contract teacher non-renewal, scramble for perm amid declining student numbers
+  (state, rng) => ({
+    title: '末位解約大逃殺',
+    narrative: `人事部內部 memo 外洩：來學年合約教席「按需要調整」，俗稱末位解約。${state.schoolName} 只有一個常額空缺傳聞，卻有五個合約老師——包括你。校政會議前，科主任逐個約談「了解意願」；你聽到走廊有人講「已有人內定」。學生人口下降像無形 HR，續約率 ${state.renewPerm}%  suddenly  feel like 賭馬賠率。有人開始狂接校外比賽、有人狂進修打卡；你嘅 PGDE 作業仍欠三千字。`,
+    percentileLines: [`合約續聘競爭分位：高於 ${randomInt(rng, 70, 90)}% 學校`],
+    choices: [
+      choice('portfolio', '[突擊] 兩週內交成就檔', 'Perm 伏線', Math.min(50, state.renewPerm + 5), 'SAN -18', {
+        大成功: { renewPerm: 25, principal: 18 },
+        成功: { renewPerm: 12, principal: 8 },
+        失敗: { san: -20, renewPerm: -12 },
+        大失敗: { san: -28, renewPerm: -22, principal: -10 },
+      }),
+      choice('loyalty', '[表忠] 公開承諾多帶活動', '續約', 58, 'SAN -14', {
+        大成功: { renewPerm: 15, principal: 12 },
+        成功: { renewPerm: 8, san: -10 },
+        失敗: { renewPerm: -10, san: -16 },
+        大失敗: { renewPerm: -18, principal: -15 },
+      }),
+      choice('jump', '[跳船] 即刻更新 JUMP', '轉校', 48, '人緣 -5', {
+        大成功: { san: 12, passion: 8 },
+        成功: { san: 5 },
+        失敗: { colleague: -15, principal: -12 },
+        大失敗: { colleague: -22, renewPerm: -15 },
+      }),
+    ],
+    allowCustom: true,
+  }),
+  // News: parental WhatsApp complaints escalate to EDB
+  (state, rng) => ({
+    title: '群組截圖直通局方',
+    narrative: `家長代表唔滿意 ${state.schoolName} 處理課堂紀律，將 WhatsApp 群組對話截圖——包括你深夜回覆「收到，明天處理」的一句——上載社交平台，並向教育局正式投訴「教師態度消極」。帖文標籤 #真實校園，留言區有人認出學校校服。校長面色鐵青叫你寫澄清，限二十四小時；家長群組同時有人貼出你去年運動會戴口罩照片，話「對學生雙標」。投訴未必成立，但輿論已審判。`,
+    percentileLines: [`社交媒體投訴升級率分位：${randomInt(rng, 25, 50)}%`],
+    choices: [
+      choice('statement', '[聲明] 與校方聯合回應', '保住飯碗', 60, 'SAN -12', {
+        大成功: { principal: 14, renewPerm: 6 },
+        成功: { principal: 6, san: -8 },
+        失敗: { passion: -10, san: -14 },
+        大失敗: { principal: -12, san: -20 },
+      }),
+      choice('private', '[私聊] 逐個家長和解', '體力', 52, 'SAN -10', {
+        大成功: { colleague: 10, principal: 8 },
+        成功: { principal: 4 },
+        失敗: { san: -15, colleague: -8 },
+        大失敗: { san: -22, principal: -15 },
+      }),
+      choice('legal', '[要求] 學校提供正式支援', '制度', 42, '冒險', {
+        大成功: { renewPerm: 8, passion: 6 },
+        成功: {},
+        失敗: { principal: -20 },
+        大失敗: { principal: -28, renewPerm: -12 },
+      }),
+    ],
+    allowCustom: true,
+  }),
+  // News: STEM/IT teachers asked to build school systems without extra pay
+  (state, rng) => ({
+    title: '校本系統義工工程',
+    narrative: `教育局鼓勸「數碼校政」，${state.schoolName} 用五十萬撥款買咗雲端套件——但無預算請外判。副校轉頭問教 STEM 的你：「順手幫手整個考勤 API、家長 App 同 AI 聊天機械人，暑假前上線啦。」你澄清自己係科學老師唔係工程師；對方笑：「全港 STEM 老師都係這樣，當專業發展嘛。」同時你要備課、出卷、填 CPD 表。不做的話「影響團隊精神」；做的話暑假蒸發。`,
+    percentileLines: [`非教學 IT 義務分位：${randomInt(rng, 75, 95)}%`],
+    choices: [
+      choice('build', '[硬做] 暑假全職開發', '校長最愛', 54, 'SAN -25', {
+        大成功: { principal: 22, renewPerm: 12, passion: 5 },
+        成功: { principal: 12, san: -18 },
+        失敗: { san: -25, passion: -10 },
+        大失敗: { san: -35, principal: -5 },
+      }),
+      choice('vendor', '[堅持] 要求外判或加津貼', '底線', 38, '校長 -', {
+        大成功: { passion: 12, colleague: 10 },
+        成功: { passion: 6 },
+        失敗: { principal: -20, renewPerm: -10 },
+        大失敗: { principal: -30, renewPerm: -18 },
+      }),
+      choice('mvp', '[折衷] 做最低可行版本', '技術流', 62, 'SAN -12', {
+        大成功: { principal: 14, colleague: 8 },
+        成功: { principal: 6, san: -10 },
+        失敗: { san: -16, principal: -8 },
+        大失敗: { san: -22, colleague: -10 },
+      }),
+    ],
+    allowCustom: true,
+  }),
 ]
 
 export function pickCareerEvent(state: GameState, rng: () => number): TurnContent {
