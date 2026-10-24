@@ -1,4 +1,9 @@
-export { PRIMARY_SCHOOLS, SECONDARY_SCHOOLS, schoolTypeLabel } from './schools'
+export {
+  PRIMARY_SCHOOLS,
+  SECONDARY_SCHOOLS,
+  schoolLocationLabel,
+  schoolTypeLabel,
+} from './schools'
 
 export const UNIVERSITIES = [
   '香港大學 (HKU)',

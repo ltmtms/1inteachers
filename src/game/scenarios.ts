@@ -1,4 +1,9 @@
-import { schoolTypeLabel } from './constants'
+import { schoolLocationLabel, schoolTypeLabel } from './constants'
+import {
+  drawMicroTeaching,
+  drawPanelQuestion,
+  drawPrincipalInterview,
+} from './interviewQuestions'
 import {
   buildAdminGroupInviteTurn,
   buildFunctionalGroupAssignmentTurn,
@@ -7,7 +12,7 @@ import {
 } from './functionalGroups'
 import { pickGroupCareerEvent } from './groupScenarios'
 import type { Choice, GameState, School, TurnContent } from './types'
-import { pickOne, randomInt } from './rng'
+import { randomInt } from './rng'
 
 const emptyEffects = {
   大成功: {},
@@ -50,9 +55,9 @@ export function buildOriginTurn(state: GameState): TurnContent {
 
 export function buildJumpTurn(): TurnContent {
   return {
-    title: '睇 JUMP',
+    title: '睇 JUMP（Jobs for Teachers）',
     narrative:
-      'JUMP 網站凌晨三點照樣開著，你捧住凍咖啡刷新頁面。小學職位多但「八達通老師」傳言不絕；中學薪金靚但科主任 Panel 會問到你靈魂深處。無論選邊，系統都會為你抽籤三間香港津貼／資助或直資（DSS）學校——Band 1 做夢、Band 3 歷練，參考組別資料來自 StarSchools。',
+      '你登入教育局 Jobs for Teachers 平台（教師招聘網 jump.hk）：篩選「津貼／資助」「直資」職位，略過官立同國際學校。凌晨三點頁面仍會更新——小學職位多但「八達通老師」傳言不絕；中學薪金靚但遴選委會會問到你靈魂深處。先選路線，下一步會顯示模擬招聘廣告（資料對照學校概覽），再進入投書、等回覆、面試志願流程。',
     choices: [
       choice('pri', '【小學】', '申請小學教席路線', 100, '無代價', emptyEffects),
       choice('sec', '【中學】', '申請中學教席路線', 100, '無代價', emptyEffects),
@@ -74,6 +79,72 @@ export function buildJumpTurn(): TurnContent {
   }
 }
 
+export function buildJumpBrowseTurn(
+  level: '小學' | '中學',
+  adLines: string[],
+): TurnContent {
+  const list = adLines.map((line, i) => `${i + 1}. ${line}`).join('\n')
+  return {
+    title: 'jump.hk · 招聘廣告列',
+    narrative: `你設定搜尋：${level} · 合約／常額教席。系統列出最新職位（樣本廣告，非即時抓取 jump.hk）：\n${list}\n\n現實裡每個職位都要上載履歷、教學理念、推薦信；校方或 HR 公司會篩選才邀請面試。你可以「投書並等回覆」，或再刷新頁面碰運氣（純敘事，不影響難度）。`,
+    percentileLines: [
+      '全港教席空缺競爭：Band 1 學校常見每職數十至上百份申請',
+      '資料來源：學校名稱及地區對照 CHSC 學校概覽',
+    ],
+    choices: [
+      choice(
+        'jump_apply',
+        '[投書] 鎖定三間志願等回覆',
+        '進入等待與遴選',
+        100,
+        'SAN -3（焦慮）',
+        {
+          大成功: { passion: 3 },
+          成功: { san: -3 },
+          失敗: { san: -5 },
+          大失敗: { san: -8 },
+        },
+      ),
+      choice(
+        'jump_refresh',
+        '[刷新] 再睇一輪廣告',
+        '純敘事，稍減焦慮',
+        100,
+        '無',
+        {
+          大成功: { san: 5 },
+          成功: { san: 2 },
+          失敗: {},
+          大失敗: { san: -3 },
+        },
+      ),
+    ],
+    allowCustom: true,
+  }
+}
+
+export function buildJumpWaitingTurn(level: '小學' | '中學'): TurnContent {
+  return {
+    title: 'jump.hk · 等回覆',
+    narrative: `過了一星期，電郵信箱靜默，WhatsApp 只有補習社廣告。${level} 招聘旺季，HR 話「正在處理大量申請」。終於有三間學校願意安排遴選委面試——未必係你投書嗰三間，但地區同類型符合你篩選。現實中有人等兩星期、有人兩個月；你嘅 SAN 已經先扣一截。`,
+    percentileLines: [
+      '獲邀面試率（新畢業生）：約 15%–35%，視學科與學校',
+      '下一關：地獄面試三部曲',
+    ],
+    choices: [
+      choice(
+        'jump_callbacks',
+        '[回覆] 確認三間面試時間',
+        '進入志願面試',
+        100,
+        '無',
+        emptyEffects,
+      ),
+    ],
+    allowCustom: false,
+  }
+}
+
 export function buildSchoolPickTurn(
   schools: School[],
   index: number,
@@ -82,7 +153,7 @@ export function buildSchoolPickTurn(
   const pct = Math.max(5, 95 - s.difficulty)
   return {
     title: `面試志願 ${index + 1}／${schools.length}`,
-    narrative: `你鎖定「${s.name}」（${schoolTypeLabel(s)}）。校園網站寫滿「全人教育」與「關愛文化」，但教員室傳聞話加班係常態。合約續約／轉 Perm 的江湖規矩，呢間學校難度指數 ${s.difficulty}／100。你可以硬闖面試三部曲，或者放棄轉下一間——全敗的話，系統會安排你做 TA（月薪 $17,000，職責：印卷、整水機、維護網頁）。`,
+    narrative: `你鎖定「${schoolLocationLabel(s)}」｜${schoolTypeLabel(s)}${s.profileNote ? `｜${s.profileNote}` : ''}。校園網站寫滿「全人教育」與「關愛文化」，但教員室傳聞話加班係常態。合約續約／轉 Perm 的江湖規矩，呢間學校難度指數 ${s.difficulty}／100。你可以硬闖面試三部曲，或者放棄轉下一間——全敗的話，系統會安排你做該校或同類學校的 TA（月薪 $17,000；職責：印卷、整水機、維護網頁），狀態列會顯示學校名稱與地區。`,
     percentileLines: [
       `根據歷年數據，類似背景獲取錄機率約 ${pct}%`,
       `面試難度分位：高於全港 ${s.difficulty}% 申請者會在此學校碰壁`,
@@ -127,17 +198,16 @@ export function buildSchoolPickTurn(
   }
 }
 
-export function buildPanelInterview(school: School, rng: () => number): TurnContent {
-  const topics = [
-    '課程發展與評估政策',
-    '校本數據分析',
-    '跨學科 STEM 協作',
-  ]
-  const topic = pickOne(rng, topics)
+export function buildPanelInterview(
+  school: School,
+  rng: () => number,
+  reInterview = false,
+): TurnContent {
+  const drawn = drawPanelQuestion(school, rng, reInterview)
   return {
-    title: '面試 I：科主任 Panel',
-    narrative: `「${school.name}」會議室冷氣過猛。科主任拋題：「請即場講解你如何處理${topic}，以及點解你唔該攞 PGDE 先來見工。」旁邊一位老師似曾相識——你唔肯定係咪十年前補習社學生。你可以硬「面試扮識」引用最新教育潮語，或者誠實承認不足並展示教案。`,
-    percentileLines: [`Panel 滿意度基準線：全港前 ${randomInt(rng, 25, 45)}% 申請者`],
+    title: reInterview ? '面試 I：原校內聘 Panel（重新遴選）' : '面試 I：科主任 Panel',
+    narrative: `${drawn.narrative} 你可以硬「面試扮識」引用最新教育潮語，或者誠實承認不足並展示教案。`,
+    percentileLines: drawn.percentileLines,
     choices: [
       choice(
         'bluff',
@@ -183,19 +253,12 @@ export function buildPanelInterview(school: School, rng: () => number): TurnCont
   }
 }
 
-export function buildMicroTeaching(_school: School, rng: () => number): TurnContent {
-  const lessons = ['二次函數圖像', '議題探究公社科', '英文辯論技巧', 'Scratch 編程入門']
-  const swans = [
-    '面試官低頭扮睡，你以為可以收工',
-    '電子白板死機，全場靜默三十秒',
-    '學生臨場問「老師你幾時結婚」',
-  ]
-  const lesson = pickOne(rng, lessons)
-  const swan = pickOne(rng, swans)
+export function buildMicroTeaching(school: School, rng: () => number): TurnContent {
+  const drawn = drawMicroTeaching(school, rng)
   return {
     title: '面試 II：試教 Micro-teaching',
-    narrative: `試教課題：「${lesson}」。你剛寫完第一個學習目標，黑天鵝出現——${swan}。下層有位副校在記分紙上畫貓。你要即場改教案、用幽默化解，或者按本宣科硬撐完十五分鐘。`,
-    percentileLines: [`試教評分預測分位：${randomInt(rng, 40, 75)}%`],
+    narrative: `${drawn.narrative} 你要即場改教案、用幽默化解，或者按本宣科硬撐完十五分鐘。`,
+    percentileLines: drawn.percentileLines,
     choices: [
       choice(
         'improvise',
@@ -241,11 +304,16 @@ export function buildMicroTeaching(_school: School, rng: () => number): TurnCont
   }
 }
 
-export function buildPrincipalInterview(_school: School): TurnContent {
+export function buildPrincipalInterview(
+  school: School,
+  rng: () => number,
+  reInterview = false,
+): TurnContent {
+  const drawn = drawPrincipalInterview(school, rng, reInterview)
   return {
-    title: '面試 III：副校／校長',
-    narrative: `最後一關，校長笑容專業：「我哋重視全人教育。星期六學校活動、無償帶比賽、暑假交流團——你 OK 嗎？」窗外正飄雨，你想起 PGDE 課程表與合約年期。接受代表「好教工」人設；討價還價可能被標記「唔夠投入」。`,
-    percentileLines: ['全港新教師首年離職率分位：高於 62% 同行'],
+    title: reInterview ? '面試 III：校長確認（內聘亦須過關）' : '面試 III：副校／校長',
+    narrative: `${drawn.narrative} 接受代表「好教工」人設；討價還價可能被標記「唔夠投入」。`,
+    percentileLines: drawn.percentileLines,
     choices: [
       choice(
         'yes_all',
@@ -770,7 +838,85 @@ const careerEvents: CareerEventBuilder[] = [
   }),
 ]
 
+const taCareerEvents: CareerEventBuilder[] = [
+  (state) => ({
+    title: '科主任話：可以報教席',
+    narrative: `你在 ${schoolLocationLabel({
+      name: state.schoolName,
+      district: state.schoolDistrict,
+      band: 0,
+      funding: '津貼/資助',
+      difficulty: 0,
+    })} 做 TA 已一段時間。科主任拍你膊頭：「下學年可能有合約位，你可以報 jump.hk，或者走內部推薦。」但人事部補充：即使原校升教席，多數仍要重新遴選面試——「程序要對外講得通」。`,
+    percentileLines: [
+      '原校 TA 轉教席：約 75%–85% 仍須重新面試',
+      `全港 TA 晉升教席：約 12%–18%`,
+    ],
+    choices: [
+      choice(
+        'ta_same_school',
+        '[原校] 申請內部教席',
+        '高機率重新面試',
+        55,
+        'SAN -8',
+        {
+          大成功: { principal: 12, passion: 8 },
+          成功: { principal: 6 },
+          失敗: { san: -10 },
+          大失敗: { principal: -10, san: -15 },
+        },
+      ),
+      choice(
+        'ta_jump_hunt',
+        '[JUMP] 對外投書其他學校',
+        'jump.hk 流程',
+        62,
+        'SAN -5',
+        {
+          大成功: { passion: 10 },
+          成功: { passion: 5 },
+          失敗: { san: -8 },
+          大失敗: { san: -14, passion: -5 },
+        },
+      ),
+      choice(
+        'ta_stay',
+        '[觀望] 繼續做 TA',
+        '保留體力',
+        100,
+        '無',
+        {
+          大成功: { san: 8 },
+          成功: { san: 4 },
+          失敗: { passion: -5 },
+          大失敗: { passion: -10, san: -5 },
+        },
+      ),
+    ],
+    allowCustom: true,
+  }),
+  (state, rng) => ({
+    title: 'jump.hk 通知：另一間學校邀面試',
+    narrative: `你趁放學後刷新 jump.hk，竟有一間 ${state.jumpLevel ?? '中學'} 職位回覆「安排遴選」。唔係你任職嘅 ${state.schoolName}（${state.schoolDistrict}），但車程尚可。TA 同事話：「你一走，影印房冇人守。」`,
+    percentileLines: [`獲邀面試分位：${randomInt(rng, 30, 65)}%`],
+    choices: [
+      choice('ta_jump_hunt', '[應徵] 準備面試三部曲', '離開 TA 搏教席', 58, 'SAN -10', {
+        大成功: { passion: 12 },
+        成功: { passion: 6 },
+        失敗: { san: -12 },
+        大失敗: { san: -18 },
+      }),
+      choice('ta_stay', '[放棄] 專心現職', '穩定', 100, '無', emptyEffects),
+    ],
+    allowCustom: false,
+  }),
+]
+
 export function pickCareerEvent(state: GameState, rng: () => number): TurnContent {
+  if (state.rank === 'TA' && rng() < 0.42) {
+    const idx = randomInt(rng, 0, taCareerEvents.length - 1)
+    return taCareerEvents[idx](state, rng)
+  }
   if (needsFunctionalGroupAssignment(state)) {
     return buildFunctionalGroupAssignmentTurn(state, rng)
   }

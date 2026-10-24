@@ -6,6 +6,8 @@ export type GamePhase =
   | 'menu'
   | 'origin'
   | 'jump'
+  | 'jump_browse'
+  | 'jump_waiting'
   | 'school_pick'
   | 'interview_panel'
   | 'interview_micro'
@@ -33,10 +35,14 @@ export type SchoolFunding = '津貼/資助' | '直資 (DSS)'
 
 export interface School {
   name: string
+  /** 18 districts / 地區 from EDB school profile. */
+  district: string
   /** Reference band (中學) or gameplay tier (小學). */
   band: 1 | 2 | 3 | 0
   funding: SchoolFunding
   difficulty: number
+  /** Short note from 學校概覽 (辦學團體、語文等). */
+  profileNote?: string
 }
 
 export interface Origin {
@@ -86,7 +92,13 @@ export interface GameState {
   mpsPoint: number
   salary: number
   schoolName: string
+  schoolDistrict: string
   schoolType: string
+  /** TA 任職學校（完整資料，供原校升教席等） */
+  taSchool: School | null
+  /** 本輪面試是否為原校 TA 重新遴選 */
+  interviewIsReInterview: boolean
+  jumpAds: string[]
   passion: number
   san: number
   principal: number
