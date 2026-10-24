@@ -160,6 +160,135 @@ const REINTERVIEW_PANEL: PanelQuestion[] = [
   },
 ]
 
+type SubjectQuestion = {
+  prompt: string
+  good: string
+  weak: string
+}
+
+const SUBJECT_QUESTIONS: Record<string, SubjectQuestion[]> = {
+  中文: [
+    {
+      prompt: '請說明你如何教 DSE 中文寫作中的議論文鋪排，並舉一例校本評估設計。',
+      good: '引用學習歷程與形成性評估，具體到單元目標',
+      weak: '只背誦「多元閱讀」口號，無例子',
+    },
+    {
+      prompt: '若學生文言文基礎薄弱，你會如何在有限課時內建立信心？',
+      good: '分層任務、讀寫結合、具體支架',
+      weak: '答「多背經典」但無課堂策略',
+    },
+  ],
+  英文: [
+    {
+      prompt: 'How would you scaffold argumentative writing for S4 students with mixed ability?',
+      good: 'Clear differentiation, formative feedback, exemplars',
+      weak: 'Vague “more practice” without pedagogy',
+    },
+    {
+      prompt: '請分享你設計一節閱讀課時，如何連結 DSE Paper 1 技能與課堂互動。',
+      good: '具體文本類型與評估對準',
+      weak: '只強調操卷',
+    },
+  ],
+  數學: [
+    {
+      prompt: '請解釋你如何教二次函數圖像，並處理學生「識計數唔識解題」的情況。',
+      good: '由圖像到代數、錯誤分析、分層練習',
+      weak: '只列公式無教學步驟',
+    },
+    {
+      prompt: '校本測驗難度與 DSE 趨勢不一致時，你會如何與科組協調？',
+      good: '數據對照、共同出卷機制',
+      weak: '個人主觀「我覺得夠難」',
+    },
+  ],
+  科學: [
+    {
+      prompt: '請設計一節酸鹼中和探究課，說明安全與評估安排。',
+      good: '風險評估、替代實驗、學習重點',
+      weak: '忽略安全只講「有趣」',
+    },
+  ],
+  '科學／STEM': [
+    {
+      prompt: '請說明 STEM 跨學科活動中，你如何評估學生科學探究能力。',
+      good: '明確評估準則與歷程紀錄',
+      weak: '活動熱鬧但無學習證據',
+    },
+  ],
+  'ICT／資訊科技': [
+    {
+      prompt: '請說明你如何在課堂引入編程思維，並處理學生抄襲程式碼問題。',
+      good: '學術誠信、分階段任務、口頭查核',
+      weak: '只推薦 YouTube 自學',
+    },
+  ],
+  '資訊及通訊科技': [
+    {
+      prompt: '請分享你設計校本 eLearning 任務時，如何照顧不同數碼能力學生。',
+      good: '分層資源、無障礙、形成性評估',
+      weak: '假設人人有最新手機',
+    },
+  ],
+  公社科: [
+    {
+      prompt: '議題探究課如何保持中立，同時回應家長對「政治化」的疑慮？',
+      good: '多元觀點、資料素養、校本政策',
+      weak: '迴避問題或單一口徑',
+    },
+  ],
+  '通識／公社科': [
+    {
+      prompt: '請舉例說明你如何設計一節國情相關單元，並連結評估。',
+      good: '議題框架、資料分析、價值觀教育',
+      weak: '純背誦資料',
+    },
+  ],
+  常識: [
+    {
+      prompt: '小學常識如何連結社區資源？請舉一個戶外學習例子。',
+      good: '風險評估、學習目標、跟進',
+      weak: '當旅行團無教學設計',
+    },
+  ],
+}
+
+function normalizeSubjectKey(subject: string, major: string): string {
+  const s = subject || major
+  if (SUBJECT_QUESTIONS[s]) return s
+  if (s.includes('中文') || major.includes('中文')) return '中文'
+  if (s.includes('英文') || major.includes('英文')) return '英文'
+  if (s.includes('數學')) return '數學'
+  if (s.includes('ICT') || s.includes('資訊')) return 'ICT／資訊科技'
+  if (s.includes('科學') || s.includes('STEM')) return '科學／STEM'
+  if (s.includes('公社') || s.includes('通識')) return '公社科'
+  return '公社科'
+}
+
+export function drawSubjectInterviewQuestion(
+  vacancySubject: string,
+  playerMajor: string,
+  rng: () => number,
+): { narrative: string; subjectKey: string } {
+  const key = normalizeSubjectKey(vacancySubject, playerMajor)
+  const pool = SUBJECT_QUESTIONS[key] ?? SUBJECT_QUESTIONS['公社科']
+  const q = pickOne(rng, pool)
+  return {
+    subjectKey: key,
+    narrative: `學科專題（${key}）：「${q.prompt}」——Panel 期待聽到具體教學設計，而非空泛口號。`,
+  }
+}
+
+export function subjectAnswerEffects(
+  choiceId: string,
+): { successRate: number; good: boolean } {
+  if (choiceId === 'subject_strong') return { successRate: 72, good: true }
+  if (choiceId === 'subject_weak') return { successRate: 28, good: false }
+  if (choiceId === 'subject_honest') return { successRate: 58, good: true }
+  return { successRate: 50, good: false }
+}
+
 export function drawPanelQuestion(
   school: School,
   rng: () => number,
@@ -187,8 +316,26 @@ export function drawPanelQuestion(
 export function drawMicroTeaching(
   school: School,
   rng: () => number,
+  vacancySubject?: string | null,
+  playerMajor?: string,
 ): { narrative: string; percentileLines: string[] } {
-  const m = pickOne(rng, MICRO_SCENARIOS)
+  const key = vacancySubject
+    ? normalizeSubjectKey(vacancySubject, playerMajor ?? '')
+    : null
+  const filtered = key
+    ? MICRO_SCENARIOS.filter((m) => {
+        if (key === '數學') return m.lesson.includes('函數')
+        if (key === '英文') return m.lesson.includes('英文')
+        if (key === '中文') return m.lesson.includes('中文')
+        if (key.includes('科學') || key.includes('STEM')) return m.lesson.includes('科學')
+        if (key.includes('ICT') || key.includes('資訊')) return m.lesson.includes('Scratch')
+        if (key === '公社科') return m.lesson.includes('公社')
+        if (key === '常識') return m.lesson.includes('常識')
+        return true
+      })
+    : MICRO_SCENARIOS
+  const pool = filtered.length ? filtered : MICRO_SCENARIOS
+  const m = pickOne(rng, pool)
   return {
     narrative: `試教課題：「${m.lesson}」（評估重點：${m.focus}）。地點：${school.district} · ${school.name} 模擬課室。你剛寫完第一個學習目標，黑天鵝出現——${m.swan}。下層有位副校在記分紙上畫貓。`,
     percentileLines: [`試教評分預測分位：${randomInt(rng, 38, 78)}%`],

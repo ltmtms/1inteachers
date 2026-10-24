@@ -1,20 +1,36 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { GameState } from '../game/types'
 import { PixelClassroomScene } from './pixel/PixelClassroomScene'
+import {
+  PixelFamilyScene,
+  PixelFunctionalScene,
+  PixelGraduationScene,
+  PixelJumpNetScene,
+  PixelPromotionScene,
+  PixelRetirementScene,
+  PixelStaffRoomScene,
+  PixelTAScene,
+} from './pixel/PixelExtendedScenes'
 import { PixelSportsDayScene } from './pixel/PixelSportsDayScene'
 import { PixelSwimmingGalaScene } from './pixel/PixelSwimmingGalaScene'
 import {
   parsePixelSceneOverride,
-  resolvePixelSceneVariant,
+  resolvePixelScene,
   type PixelSceneVariant,
+  type ResolvedPixelScene,
 } from './pixel/resolvePixelSceneVariant'
+import './pixel/pixel-extended.css'
 import { PixelSchoolScene } from './PixelSchoolScene'
 
 const MENU_CYCLE: PixelSceneVariant[] = [
-  'school-yard',
+  'graduation',
+  'jump-net',
   'classroom',
+  'ta-desk',
+  'staff-room',
   'sports-day',
-  'swimming-gala',
+  'promotion',
+  'retirement',
 ]
 
 type Props = {
@@ -23,14 +39,45 @@ type Props = {
   state?: GameState | null
 }
 
-function renderScene(variant: PixelSceneVariant, compact: boolean) {
+function renderScene(resolved: ResolvedPixelScene, compact: boolean) {
+  const { variant, subject } = resolved
   switch (variant) {
     case 'classroom':
-      return <PixelClassroomScene compact={compact} />
+      return <PixelClassroomScene compact={compact} subject={subject} />
     case 'sports-day':
       return <PixelSportsDayScene compact={compact} />
     case 'swimming-gala':
       return <PixelSwimmingGalaScene compact={compact} />
+    case 'graduation':
+      return <PixelGraduationScene compact={compact} />
+    case 'jump-net':
+      return <PixelJumpNetScene compact={compact} />
+    case 'ta-desk':
+      return <PixelTAScene compact={compact} />
+    case 'staff-room':
+      return <PixelStaffRoomScene compact={compact} />
+    case 'func-discipline':
+      return <PixelFunctionalScene compact={compact} kind="discipline" />
+    case 'func-eca':
+      return <PixelFunctionalScene compact={compact} kind="eca" />
+    case 'func-counselling':
+      return <PixelFunctionalScene compact={compact} kind="counselling" />
+    case 'func-it':
+      return <PixelFunctionalScene compact={compact} kind="it" />
+    case 'func-admin':
+      return <PixelFunctionalScene compact={compact} kind="admin" />
+    case 'family-dating':
+      return <PixelFamilyScene compact={compact} kind="dating" />
+    case 'family-wedding':
+      return <PixelFamilyScene compact={compact} kind="wedding" />
+    case 'family-child':
+      return <PixelFamilyScene compact={compact} kind="child" />
+    case 'family-bereavement':
+      return <PixelFamilyScene compact={compact} kind="bereavement" />
+    case 'promotion':
+      return <PixelPromotionScene compact={compact} />
+    case 'retirement':
+      return <PixelRetirementScene compact={compact} />
     default:
       return <PixelSchoolScene compact={compact} />
   }
@@ -52,8 +99,11 @@ export function PixelTeacherScene({ compact = false, state = null }: Props) {
     return () => window.clearInterval(id)
   }, [state, urlOverride])
 
-  const variant: PixelSceneVariant = urlOverride
-    ?? (state ? resolvePixelSceneVariant(state) : MENU_CYCLE[menuIndex])
+  const resolved: ResolvedPixelScene = urlOverride
+    ? { variant: urlOverride }
+    : state
+      ? resolvePixelScene(state)
+      : { variant: MENU_CYCLE[menuIndex] }
 
-  return renderScene(variant, compact)
+  return renderScene(resolved, compact)
 }

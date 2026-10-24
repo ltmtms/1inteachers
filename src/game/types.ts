@@ -1,3 +1,4 @@
+import type { JumpAd } from './jumpAds'
 import type { TeacherSalaryTrack } from './salaryScale'
 
 export type Judgment = '大成功' | '成功' | '失敗' | '大失敗'
@@ -7,6 +8,7 @@ export type Rank = '待業' | 'TA' | '合約教席' | '常額位'
 export type GamePhase =
   | 'menu'
   | 'origin'
+  | 'pgde_apply'
   | 'jump'
   | 'jump_browse'
   | 'jump_waiting'
@@ -22,7 +24,14 @@ export type EndingType =
   | 'unemployed'
   | 'perm_win'
   | 'career_change'
+  | 'retirement'
   | null
+
+export type RelationshipStatus = 'single' | 'dating' | 'married'
+
+export type PgdeStatus = 'none' | 'applying' | 'waitlisted' | 'enrolled' | 'completed'
+
+export type LeadershipRank = 'SGM' | 'PGM' | '校長' | null
 
 /** 學校功能組別（津貼／直資中小學常見編制） */
 export type FunctionalGroupId =
@@ -53,6 +62,9 @@ export interface Origin {
   examLabel: string
   percentile: number
   major: string
+  /** JUPAS 課程全名 */
+  jupasProgramme: string
+  jupasCode: string
   pgdeNote: string
 }
 
@@ -62,6 +74,8 @@ export interface StatDelta {
   principal?: number
   colleague?: number
   renewPerm?: number
+  familyBurden?: number
+  savings?: number
 }
 
 export interface Choice {
@@ -101,9 +115,25 @@ export interface GameState {
   taSchool: School | null
   /** 本輪面試是否為原校 TA 重新 second in */
   interviewIsReInterview: boolean
-  jumpAds: string[]
+  jumpAds: JumpAd[]
+  selectedJumpAd: JumpAd | null
+  /** 本輪面試招聘學科（來自廣告或學校） */
+  interviewVacancySubject: string | null
   passion: number
   san: number
+  /** 家庭負擔度 0–100 */
+  familyBurden: number
+  /** 玩家年齡；新遊戲 22，職場每回合 +1，60 歲退休 */
+  age: number
+  /** 居住區（香港） */
+  residence: string
+  relationship: RelationshipStatus
+  children: number
+  savings: number
+  pgdeStatus: PgdeStatus
+  /** 做 TA 時任職學校；必須轉校才可再任教席 */
+  taBlockedSchoolName: string | null
+  leadershipRank: LeadershipRank
   principal: number
   colleague: number
   renewPerm: number
@@ -128,4 +158,4 @@ export interface GameState {
   interviewMicroResult: Judgment | null
 }
 
-export const SAVE_KEY = 'hk-teacher-life-save-v2'
+export const SAVE_KEY = 'hk-teacher-life-save-v3'

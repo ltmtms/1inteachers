@@ -14,13 +14,27 @@ export function StatusPanel({ state }: { state: GameState }) {
   const schoolRowLabel = state.rank === 'TA' ? '任教學校（TA）' : '任教學校'
   const schoolRowValue = formatSchoolStatus(state)
 
+  const major = state.origin?.major ?? '—'
+  const pgdeLabel =
+    state.pgdeStatus === 'completed'
+      ? '已完成 PGDE'
+      : state.pgdeStatus === 'enrolled'
+        ? '修讀 PGDE 中'
+        : state.pgdeStatus === 'waitlisted'
+          ? 'PGDE 候補'
+          : state.pgdeStatus === 'applying'
+            ? 'PGDE 申請中'
+            : '未有 PGDE'
+
   const rows = [
+    ['年齡', `${state.age} 歲`],
     ['職級', rankLabel(state.rank)],
+    ['主修／學科', major],
+    ['PGDE', pgdeLabel],
+    ['居住', state.residence !== '—' ? state.residence : '—'],
     ['月薪／薪點', salary],
     [schoolRowLabel, schoolRowValue],
-    ...(state.rank === 'TA'
-      ? [['所在地區', state.schoolDistrict !== '—' ? state.schoolDistrict : '—']]
-      : []),
+    ...(state.leadershipRank ? [['管理職', state.leadershipRank]] : []),
     ...(state.phase === 'career' || state.phase === 'ending'
       ? [
           ['在校年資', `${state.yearsAtSchool} 年`],
@@ -28,10 +42,10 @@ export function StatusPanel({ state }: { state: GameState }) {
         ]
       : []),
     ['教學熱誠', `${state.passion} / 100`],
-    ['精神 SAN 值', `${state.san} / 100`],
+    ['精神健康值', `${state.san} / 100`],
+    ['家庭負擔度', `${state.familyBurden} / 100`],
     ['校長/管理層好感', `${state.principal} / 100`],
     ['教員室人緣', `${state.colleague} / 100`],
-    ['續約／轉 Perm 機率', `${state.renewPerm}%`],
   ]
 
   return (
@@ -55,7 +69,7 @@ export function StatusPanel({ state }: { state: GameState }) {
         </dl>
         {state.san <= 20 && state.phase !== 'ending' && (
           <p className="mt-2 text-xs text-red-600 animate-pulse">
-            警告：SAN 偏低，接近精神崩潰（歸零即 Game Over）
+            警告：精神健康值偏低，接近崩潰（歸零即 Game Over）
           </p>
         )}
       </div>

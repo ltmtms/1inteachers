@@ -1,0 +1,433 @@
+/* Graduation */
+.pixel-grad {
+  background: linear-gradient(180deg, #7eb8e8 0%, #c5dff5 50%, #8fbc6a 100%);
+}
+.pixel-grad__stage {
+  position: absolute;
+  bottom: 28%;
+  left: 10%;
+  right: 10%;
+  height: calc(var(--px) * 2);
+  background: #6b5344;
+}
+.pixel-grad__cap {
+  position: absolute;
+  bottom: 38%;
+  left: 46%;
+  width: calc(var(--px) * 3);
+  height: calc(var(--px) * 1.5);
+  background: #2a2a2a;
+  animation: pixel-grad-bounce 1.2s steps(2) infinite;
+}
+.pixel-grad__cap::after {
+  content: '';
+  position: absolute;
+  top: calc(var(--px) * -1);
+  right: calc(var(--px) * -1);
+  width: calc(var(--px) * 1);
+  height: calc(var(--px) * 2);
+  background: #d4af37;
+  animation: pixel-grad-tassel 1.2s ease-in-out infinite;
+}
+.pixel-grad__grad {
+  position: absolute;
+  bottom: 30%;
+  left: 44%;
+  width: calc(var(--px) * 2.5);
+  height: calc(var(--px) * 4);
+  background: #3d5a80;
+}
+@keyframes pixel-grad-bounce {
+  50% {
+    transform: translateY(calc(var(--px) * -0.5));
+  }
+}
+@keyframes pixel-grad-tassel {
+  50% {
+    transform: rotate(12deg);
+  }
+}
+
+/* 跳跳網 */
+.pixel-jump {
+  background: linear-gradient(180deg, #1a1a2e 0%, #2d2d44 55%, #3d3d55 100%);
+}
+.pixel-jump__screen {
+  position: absolute;
+  top: 18%;
+  left: 12%;
+  right: 12%;
+  bottom: 22%;
+  background: #0f3460;
+  border: calc(var(--px) * 0.5) solid #e94560;
+  box-shadow: inset 0 0 0 calc(var(--px) * 0.5) #16213e;
+}
+.pixel-jump__line {
+  position: absolute;
+  left: calc(var(--px) * 2);
+  height: calc(var(--px) * 0.75);
+  background: #53d8fb;
+  animation: pixel-jump-scan 2s steps(5) infinite;
+}
+.pixel-jump__line--1 {
+  top: 28%;
+  width: 40%;
+}
+.pixel-jump__line--2 {
+  top: 42%;
+  width: 55%;
+  animation-delay: 0.4s;
+}
+.pixel-jump__line--3 {
+  top: 56%;
+  width: 35%;
+  animation-delay: 0.8s;
+}
+.pixel-jump__cursor {
+  position: absolute;
+  bottom: 30%;
+  right: 20%;
+  width: calc(var(--px) * 1);
+  height: calc(var(--px) * 1.5);
+  background: #e94560;
+  animation: pixel-jump-blink 0.8s steps(1) infinite;
+}
+@keyframes pixel-jump-scan {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes pixel-jump-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* TA 印卷／水機 */
+.pixel-ta {
+  background: linear-gradient(180deg, #e8e0d4 0%, #d0c4b0 100%);
+}
+.pixel-ta__copier {
+  position: absolute;
+  bottom: 32%;
+  left: 22%;
+  width: calc(var(--px) * 8);
+  height: calc(var(--px) * 5);
+  background: #888;
+  border: calc(var(--px) * 0.5) solid #555;
+}
+.pixel-ta__paper {
+  position: absolute;
+  bottom: 38%;
+  left: 28%;
+  width: calc(var(--px) * 3);
+  height: calc(var(--px) * 4);
+  background: #fff;
+  animation: pixel-ta-feed 1.5s steps(3) infinite;
+}
+.pixel-ta__person {
+  position: absolute;
+  bottom: 28%;
+  right: 28%;
+  width: calc(var(--px) * 2);
+  height: calc(var(--px) * 5);
+  background: #5a7a9a;
+}
+@keyframes pixel-ta-feed {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(calc(var(--px) * 2));
+  }
+}
+
+/* 教員室改卷 */
+.pixel-staff {
+  background: linear-gradient(180deg, #1a1a28 0%, #2a2a3a 100%);
+}
+.pixel-staff__lamp {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(var(--px) * 6);
+  height: calc(var(--px) * 2);
+  background: #f4d58d;
+  border-radius: 50%;
+  animation: pixel-staff-glow 2s ease-in-out infinite;
+  box-shadow: 0 0 calc(var(--px) * 4) #f4d58d88;
+}
+.pixel-staff__desk {
+  position: absolute;
+  bottom: 25%;
+  left: 15%;
+  right: 15%;
+  height: calc(var(--px) * 2);
+  background: #5c4033;
+}
+.pixel-staff__stack {
+  position: absolute;
+  bottom: 32%;
+  left: 35%;
+  width: calc(var(--px) * 6);
+  height: calc(var(--px) * 3);
+  background: #fff;
+  box-shadow: calc(var(--px) * 1) 0 0 #eee, calc(var(--px) * 2) 0 0 #ddd;
+  animation: pixel-staff-mark 1.8s steps(2) infinite;
+}
+@keyframes pixel-staff-glow {
+  50% {
+    opacity: 0.75;
+  }
+}
+@keyframes pixel-staff-mark {
+  50% {
+    transform: translateX(calc(var(--px) * 0.5));
+  }
+}
+
+/* 功能組通用 */
+.pixel-func {
+  background: linear-gradient(180deg, #c8dce8 0%, #a8c0d0 100%);
+}
+.pixel-func__icon {
+  position: absolute;
+  bottom: 35%;
+  left: 42%;
+  width: calc(var(--px) * 6);
+  height: calc(var(--px) * 6);
+  animation: pixel-func-pulse 1.5s steps(2) infinite;
+}
+.pixel-func--discipline .pixel-func__icon {
+  background: #c0392b;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+.pixel-func--eca .pixel-func__icon {
+  background: #27ae60;
+  border-radius: 50%;
+}
+.pixel-func--counselling .pixel-func__icon {
+  background: #9b59b6;
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+}
+.pixel-func--it .pixel-func__icon {
+  background: #2980b9;
+}
+.pixel-func--it .pixel-func__icon::after {
+  content: '';
+  position: absolute;
+  inset: 25%;
+  background: #1a5276;
+  animation: pixel-func-blink 0.6s steps(1) infinite;
+}
+.pixel-func--admin .pixel-func__icon {
+  background: #7f8c8d;
+}
+@keyframes pixel-func-pulse {
+  50% {
+    transform: scale(1.05);
+  }
+}
+@keyframes pixel-func-blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* 家庭場景 */
+.pixel-family {
+  background: linear-gradient(180deg, #ffd89b 0%, #ffb88c 45%, #8fbc8f 100%);
+}
+.pixel-family--quiet {
+  background: linear-gradient(180deg, #6b7b8c 0%, #4a5568 55%, #3d4a5c 100%);
+}
+.pixel-family__heart {
+  position: absolute;
+  top: 30%;
+  left: 45%;
+  width: calc(var(--px) * 3);
+  height: calc(var(--px) * 3);
+  background: #e74c3c;
+  transform: rotate(-45deg);
+  animation: pixel-family-heart 1s ease-in-out infinite;
+}
+.pixel-family__heart::before,
+.pixel-family__heart::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #e74c3c;
+  border-radius: 50%;
+}
+.pixel-family__heart::before {
+  top: -50%;
+  left: 0;
+}
+.pixel-family__heart::after {
+  left: 50%;
+  top: 0;
+}
+.pixel-family__rings {
+  position: absolute;
+  top: 35%;
+  left: 40%;
+  width: calc(var(--px) * 5);
+  height: calc(var(--px) * 5);
+  border: calc(var(--px) * 0.75) solid #d4af37;
+  border-radius: 50%;
+  animation: pixel-family-spin 4s linear infinite;
+}
+.pixel-family__rings::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 35%;
+  width: calc(var(--px) * 3);
+  height: calc(var(--px) * 3);
+  border: calc(var(--px) * 0.5) solid #d4af37;
+  border-radius: 50%;
+}
+.pixel-family__cradle {
+  position: absolute;
+  bottom: 30%;
+  left: 38%;
+  width: calc(var(--px) * 6);
+  height: calc(var(--px) * 3);
+  background: #f5deb3;
+  border-radius: 40% 40% 0 0;
+  animation: pixel-family-rock 2s ease-in-out infinite;
+}
+.pixel-family__candle {
+  position: absolute;
+  bottom: 35%;
+  left: 46%;
+  width: calc(var(--px) * 1);
+  height: calc(var(--px) * 3);
+  background: #fff8dc;
+}
+.pixel-family__flame {
+  position: absolute;
+  bottom: calc(35% + var(--px) * 3);
+  left: 45%;
+  width: calc(var(--px) * 1.5);
+  height: calc(var(--px) * 1.5);
+  background: #f39c12;
+  border-radius: 50% 50% 20% 20%;
+  animation: pixel-family-flame 0.5s steps(2) infinite;
+}
+@keyframes pixel-family-heart {
+  50% {
+    transform: rotate(-45deg) scale(1.08);
+  }
+}
+@keyframes pixel-family-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes pixel-family-rock {
+  50% {
+    transform: rotate(-3deg);
+  }
+}
+@keyframes pixel-family-flame {
+  50% {
+    transform: scaleY(1.15);
+  }
+}
+
+/* 晉升 */
+.pixel-promo {
+  background: linear-gradient(180deg, #1a237e 0%, #3949ab 50%, #7986cb 100%);
+}
+.pixel-promo__badge {
+  position: absolute;
+  top: 28%;
+  left: 38%;
+  width: calc(var(--px) * 8);
+  height: calc(var(--px) * 8);
+  background: #ffd700;
+  border: calc(var(--px) * 0.75) solid #b8860b;
+  animation: pixel-promo-shine 2s steps(3) infinite;
+}
+.pixel-promo__star {
+  position: absolute;
+  top: 32%;
+  left: 42%;
+  width: calc(var(--px) * 4);
+  height: calc(var(--px) * 4);
+  background: #fff;
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+}
+@keyframes pixel-promo-shine {
+  50% {
+    filter: brightness(1.2);
+  }
+}
+
+/* 退休 */
+.pixel-retire {
+  background: linear-gradient(180deg, #ff9a76 0%, #ffce8a 40%, #88b04b 100%);
+}
+.pixel-retire__bench {
+  position: absolute;
+  bottom: 28%;
+  left: 25%;
+  right: 25%;
+  height: calc(var(--px) * 1.5);
+  background: #6b4423;
+}
+.pixel-retire__person {
+  position: absolute;
+  bottom: 32%;
+  left: 44%;
+  width: calc(var(--px) * 2.5);
+  height: calc(var(--px) * 4);
+  background: #5d6d7e;
+}
+.pixel-retire__sun {
+  position: absolute;
+  top: 12%;
+  right: 18%;
+  width: calc(var(--px) * 5);
+  height: calc(var(--px) * 5);
+  background: #f1c40f;
+  border-radius: 50%;
+  animation: pixel-retire-sun 3s ease-in-out infinite;
+}
+@keyframes pixel-retire-sun {
+  50% {
+    transform: translateY(calc(var(--px) * 1));
+  }
+}
+
+/* 課室學科色調 */
+.pixel-classroom--math .pixel-classroom__board {
+  background: #1e3a5f;
+}
+.pixel-classroom--english .pixel-classroom__board {
+  background: #4a2c5a;
+}
+.pixel-classroom--chinese .pixel-classroom__board {
+  background: #5c2a2a;
+}
+.pixel-classroom--ict .pixel-classroom__board {
+  background: #1a3d2e;
+}

@@ -1,11 +1,29 @@
 import './pixel-classroom.css'
+import './pixel-extended.css'
 import './pixel-shared.css'
 
+function subjectModifier(subject?: string): string {
+  if (!subject) return ''
+  if (subject.includes('數學')) return 'pixel-classroom--math'
+  if (subject.includes('英文')) return 'pixel-classroom--english'
+  if (subject.includes('中文')) return 'pixel-classroom--chinese'
+  if (subject.includes('ICT') || subject.includes('資訊')) return 'pixel-classroom--ict'
+  return ''
+}
+
 /** Indoor classroom — teacher at board, desks, chalk motion. */
-export function PixelClassroomScene({ compact = false }: { compact?: boolean }) {
+export function PixelClassroomScene({
+  compact = false,
+  subject,
+}: {
+  compact?: boolean
+  subject?: string
+}) {
+  const mod = subjectModifier(subject)
+  const caption = subject ? `課室 · ${subject.split('／')[0]}` : '課室'
   return (
     <div
-      className={`pixel-scene pixel-classroom ${compact ? 'pixel-scene--compact' : ''}`}
+      className={`pixel-scene pixel-classroom ${mod} ${compact ? 'pixel-scene--compact' : ''}`}
       role="img"
       aria-label="像素風格課室：老師黑板前授課"
     >
@@ -31,7 +49,7 @@ export function PixelClassroomScene({ compact = false }: { compact?: boolean }) 
         <span className="pixel-classroom__teacher-arm" />
         <span className="pixel-classroom__pointer" />
       </div>
-      <span className="pixel-scene__caption">課室</span>
+      <span className="pixel-scene__caption">{caption}</span>
     </div>
   )
 }

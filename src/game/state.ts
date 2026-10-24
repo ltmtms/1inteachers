@@ -32,8 +32,19 @@ export function createInitialState(seed?: number): GameState {
     taSchool: null,
     interviewIsReInterview: false,
     jumpAds: [],
+    selectedJumpAd: null,
+    interviewVacancySubject: null,
     passion: 70,
     san: 85,
+    familyBurden: 15,
+    age: 22,
+    residence: '—',
+    relationship: 'single',
+    children: 0,
+    savings: 8_000,
+    pgdeStatus: 'none',
+    taBlockedSchoolName: null,
+    leadershipRank: null,
     principal: 40,
     colleague: 50,
     renewPerm: 15,
@@ -65,6 +76,9 @@ export function applyDelta(state: GameState, delta: StatDelta): GameState {
     next.colleague = clampStat(next.colleague + delta.colleague)
   if (delta.renewPerm != null)
     next.renewPerm = clampStat(next.renewPerm + delta.renewPerm, 0, 99)
+  if (delta.familyBurden != null)
+    next.familyBurden = clampStat(next.familyBurden + delta.familyBurden)
+  if (delta.savings != null) next.savings = Math.max(0, next.savings + delta.savings)
   return next
 }
 
@@ -74,7 +88,9 @@ function salaryTrackForLevel(level: GameState['jumpLevel']): TeacherSalaryTrack 
 
 export function setContractJob(state: GameState, school: School): GameState {
   const track = salaryTrackForLevel(state.jumpLevel)
-  const mps = entryMpsPoint(track)
+  const hasPgde =
+    state.pgdeStatus === 'completed' || state.pgdeStatus === 'enrolled'
+  const mps = hasPgde ? entryMpsPoint(track) : 15
   const baseRenew =
     school.band === 1 ? 22 : school.band === 2 ? 35 : 48
   return {
@@ -103,10 +119,18 @@ export function setTAJob(state: GameState, school: School): GameState {
     schoolDistrict: school.district,
     schoolType: schoolTypeLabel(school),
     taSchool: school,
+    taBlockedSchoolName: school.name,
     renewPerm: 8,
     passion: clampStat(state.passion - 15),
     san: clampStat(state.san - 10),
+    familyBurden: clampStat(state.familyBurden + 8),
   }
+}
+
+/** TA 路線：不可在原 TA 學校直接升任教席，必須轉校 */
+export function isTaSchoolBlocked(state: GameState, school: School): boolean {
+  if (!state.taBlockedSchoolName) return false
+  return school.name === state.taBlockedSchoolName
 }
 
 export function formatSchoolStatus(state: GameState): string {
@@ -177,7 +201,18 @@ export function migrateGameState(state: GameState): GameState {
     salaryTrack: track,
     taSchool: state.taSchool ?? null,
     interviewIsReInterview: state.interviewIsReInterview ?? false,
-    jumpAds: state.jumpAds ?? [],
+    jumpAds: Array.isArray(state.jumpAds) ? state.jumpAds : [],
+    selectedJumpAd: state.selectedJumpAd ?? null,
+    interviewVacancySubject: state.interviewVacancySubject ?? null,
+    familyBurden: state.familyBurden ?? 15,
+    age: state.age ?? 22 + Math.max(0, state.careerTurns ?? 0),
+    residence: state.residence ?? '—',
+    relationship: state.relationship ?? 'single',
+    children: state.children ?? 0,
+    savings: state.savings ?? 8_000,
+    pgdeStatus: state.pgdeStatus ?? 'none',
+    taBlockedSchoolName: state.taBlockedSchoolName ?? state.taSchool?.name ?? null,
+    leadershipRank: state.leadershipRank ?? null,
     functionalGroup: state.functionalGroup ?? null,
     functionalGroupOptOut: state.functionalGroupOptOut ?? false,
     adminInviteResolved: state.adminInviteResolved ?? false,
