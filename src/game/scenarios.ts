@@ -1,4 +1,4 @@
-import { schoolLocationLabel, schoolTypeLabel } from './constants'
+import { schoolLocationLabel, schoolTypeLabel, TA_MONTHLY_SALARY } from './constants'
 import {
   drawMicroTeaching,
   drawPanelQuestion,
@@ -57,7 +57,7 @@ export function buildJumpTurn(): TurnContent {
   return {
     title: '睇 JUMP（Jobs for Teachers）',
     narrative:
-      '你登入教育局 Jobs for Teachers 平台（教師招聘網 jump.hk）：篩選「津貼／資助」「直資」職位，略過官立同國際學校。凌晨三點頁面仍會更新——小學職位多但「八達通老師」傳言不絕；中學薪金靚但遴選委會會問到你靈魂深處。先選路線，下一步會顯示模擬招聘廣告（資料對照學校概覽），再進入投書、等回覆、面試志願流程。',
+      '你登入教育局 Jobs for Teachers 平台（教師招聘網 jump.hk）：篩選「津貼／資助」「直資」職位，略過官立同國際學校。凌晨三點頁面仍會更新——小學職位多但「八達通老師」傳言不絕；中學薪金靚但遴選委會會問到你靈魂深處。名單來自教育局學校資料入口所連結的 CHSC 學校概覽（津貼／資助及直資 DSS）。先選路線，下一步會顯示模擬招聘廣告，再進入投書、等回覆、面試志願流程。',
     choices: [
       choice('pri', '【小學】', '申請小學教席路線', 100, '無代價', emptyEffects),
       choice('sec', '【中學】', '申請中學教席路線', 100, '無代價', emptyEffects),
@@ -151,9 +151,12 @@ export function buildSchoolPickTurn(
 ): TurnContent {
   const s = schools[index]
   const pct = Math.max(5, 95 - s.difficulty)
+  const profile = s.profileNote
+    ? `學校概覽摘錄：${s.profileNote.slice(0, 120)}${s.profileNote.length > 120 ? '…' : ''}`
+    : '學校概覽：資料由校方提供（CHSC）。'
   return {
     title: `面試志願 ${index + 1}／${schools.length}`,
-    narrative: `你鎖定「${schoolLocationLabel(s)}」｜${schoolTypeLabel(s)}${s.profileNote ? `｜${s.profileNote}` : ''}。校園網站寫滿「全人教育」與「關愛文化」，但教員室傳聞話加班係常態。合約續約／轉 Perm 的江湖規矩，呢間學校難度指數 ${s.difficulty}／100。你可以硬闖面試三部曲，或者放棄轉下一間——全敗的話，系統會安排你做該校或同類學校的 TA（月薪 $17,000；職責：印卷、整水機、維護網頁），狀態列會顯示學校名稱與地區。`,
+    narrative: `你鎖定「${schoolLocationLabel(s)}」｜${schoolTypeLabel(s)}。${profile} 教員室傳聞話加班係常態。合約續約／轉 Perm 難度指數 ${s.difficulty}／100。你可以硬闖面試三部曲，或者放棄轉下一間——全敗的話，系統會安排你做該校或同類學校的 TA（月薪 $${TA_MONTHLY_SALARY.toLocaleString()}；職責：印卷、整水機、維護網頁），狀態列會顯示學校名稱與地區。`,
     percentileLines: [
       `根據歷年數據，類似背景獲取錄機率約 ${pct}%`,
       `面試難度分位：高於全港 ${s.difficulty}% 申請者會在此學校碰壁`,

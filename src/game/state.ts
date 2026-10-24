@@ -1,4 +1,9 @@
-import { mpsSalary } from './constants'
+import {
+  entryMpsPoint,
+  mpsMonthlySalary,
+  TA_MONTHLY_SALARY,
+  type TeacherSalaryTrack,
+} from './salaryScale'
 import { schoolLocationLabel, schoolTypeLabel } from './schools'
 import type { GameState, Judgment, Rank, School, StatDelta } from './types'
 
@@ -20,6 +25,7 @@ export function createInitialState(seed?: number): GameState {
     rank: '待業',
     mpsPoint: 0,
     salary: 0,
+    salaryTrack: null,
     schoolName: '—',
     schoolDistrict: '—',
     schoolType: '—',
@@ -62,17 +68,21 @@ export function applyDelta(state: GameState, delta: StatDelta): GameState {
   return next
 }
 
-export function setContractJob(
-  state: GameState,
-  school: School,
-): GameState {
-  const mps = school.band === 1 ? 18 : school.band === 2 ? 16 : 14
-  const baseRenew = school.band === 1 ? 22 : school.band === 2 ? 35 : 48
+function salaryTrackForLevel(level: GameState['jumpLevel']): TeacherSalaryTrack {
+  return level === '小學' ? 'APSM' : 'GM'
+}
+
+export function setContractJob(state: GameState, school: School): GameState {
+  const track = salaryTrackForLevel(state.jumpLevel)
+  const mps = entryMpsPoint(track)
+  const baseRenew =
+    school.band === 1 ? 22 : school.band === 2 ? 35 : 48
   return {
     ...state,
     rank: '合約教席',
+    salaryTrack: track,
     mpsPoint: mps,
-    salary: mpsSalary(mps),
+    salary: mpsMonthlySalary(mps),
     schoolName: school.name,
     schoolDistrict: school.district,
     schoolType: schoolTypeLabel(school),
@@ -86,8 +96,9 @@ export function setTAJob(state: GameState, school: School): GameState {
   return {
     ...state,
     rank: 'TA',
+    salaryTrack: null,
     mpsPoint: 0,
-    salary: mpsSalary(0),
+    salary: TA_MONTHLY_SALARY,
     schoolName: school.name,
     schoolDistrict: school.district,
     schoolType: schoolTypeLabel(school),
@@ -152,10 +163,18 @@ export function migrateGameState(state: GameState): GameState {
   const schoolDistrict =
     state.schoolDistrict ??
     (state.taSchool?.district ?? '—')
+  const track =
+    state.salaryTrack ??
+    (state.jumpLevel === '小學'
+      ? 'APSM'
+      : state.rank === 'TA'
+        ? null
+        : 'GM')
   return {
     ...state,
     yearsAtSchool,
     schoolDistrict,
+    salaryTrack: track,
     taSchool: state.taSchool ?? null,
     interviewIsReInterview: state.interviewIsReInterview ?? false,
     jumpAds: state.jumpAds ?? [],

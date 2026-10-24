@@ -1,21 +1,22 @@
+import { formatSalaryStatus } from '../game/constants'
 import { functionalGroupLabel } from '../game/functionalGroups'
 import { formatSchoolStatus, rankLabel } from '../game/state'
 import type { GameState } from '../game/types'
 
 export function StatusPanel({ state }: { state: GameState }) {
-  const salary =
-    state.salary > 0
-      ? `MPS Pt. ${state.mpsPoint} ($${state.salary.toLocaleString()})`
-      : state.rank === 'TA'
-        ? '月薪 $17,000（TA）'
-        : '—'
+  const salary = formatSalaryStatus(
+    state.rank,
+    state.salaryTrack,
+    state.mpsPoint,
+    state.salary,
+  )
 
   const schoolRowLabel = state.rank === 'TA' ? '任教學校（TA）' : '任教學校'
   const schoolRowValue = formatSchoolStatus(state)
 
   const rows = [
     ['職級', rankLabel(state.rank)],
-    ['月薪', salary],
+    ['月薪／薪點', salary],
     [schoolRowLabel, schoolRowValue],
     ...(state.rank === 'TA'
       ? [['所在地區', state.schoolDistrict !== '—' ? state.schoolDistrict : '—']]

@@ -1,10 +1,13 @@
 import {
+  formatSalaryStatus,
   MAJORS,
+  mpsMonthlySalary,
   PGDE_RATE_TEXT,
   PRIMARY_SCHOOLS,
   SECONDARY_SCHOOLS,
   UNIVERSITIES,
 } from './constants'
+import { tickSalaryProgression } from './salaryScale'
 import { createRng, percentile, pickOne, randomInt } from './rng'
 import { drawJumpAds, formatJumpAdLine } from './jumpAds'
 import {
@@ -154,7 +157,8 @@ function finalizeCareer(state: GameState, rng: () => number): GameState {
         phase: 'ending',
         ending: 'perm_win',
         rank: '常額位',
-        mpsPoint: clampStat(s.mpsPoint + 4, 14, 34),
+        mpsPoint: clampStat(s.mpsPoint + 4, 12, 36),
+        salary: mpsMonthlySalary(clampStat(s.mpsPoint + 4, 12, 36)),
         endingTitle: '結局：常額位 (Perm) — 1 in 80 Billion 的贏家',
         endingNarrative: `經過多年合約奴工、TDD 與家長電郵，${s.schoolName} 終於批出常額位。月薪跳升，教員室有人恭喜、有人酸「內定」。你望住 MPS 表，唔知應該開心定繼續驚下個學年又有新改革。至少——你贏咗一場機率遊戲。`,
         currentTurn: null,
@@ -337,7 +341,7 @@ export function resolveChoice(
         next.careerTurns = 0
         next.currentTurn = {
           title: '錄取！合約教席',
-          narrative: `恭喜（或者同情）——${school.name} 向你發出合約教席聘書。月薪 MPS Pt. ${next.mpsPoint}（$${next.salary.toLocaleString()}）。校長握手時話「期待你全情投入」。你微笑，心入面計緊還幾年學貸。校園修羅場正式開始。`,
+          narrative: `恭喜（或者同情）——${school.name}（${school.district}）向你發出合約教席聘書。${formatSalaryStatus(next.rank, next.salaryTrack, next.mpsPoint, next.salary)}。校長握手時話「期待你全情投入」。你微笑，心入面計緊還幾年學貸。校園修羅場正式開始。`,
           percentileLines: [
             `你的錄取排名約勝過全港 ${percentile(createRng(next.seed), 60, 92)}% 同期申請者`,
           ],
@@ -417,6 +421,22 @@ export function resolveChoice(
           choiceId.startsWith('fg_assign_') || choiceId === 'fg_decline'
         if (!skipTenureYear) {
           next.yearsAtSchool += 1
+        }
+        if (
+          next.rank === '合約教席' ||
+          next.rank === '常額位'
+        ) {
+          const track = next.salaryTrack ?? (next.jumpLevel === '小學' ? 'APSM' : 'GM')
+          const newPoint = tickSalaryProgression(
+            next.mpsPoint,
+            next.yearsAtSchool,
+            next.rank,
+          )
+          if (newPoint !== next.mpsPoint) {
+            next.mpsPoint = newPoint
+            next.salary = mpsMonthlySalary(newPoint)
+            next.salaryTrack = track
+          }
         }
       }
 
