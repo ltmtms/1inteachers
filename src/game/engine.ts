@@ -1,21 +1,24 @@
 import {
   formatSalaryStatus,
-  MAJORS,
   mpsMonthlySalary,
   PGDE_RATE_TEXT,
   PRIMARY_SCHOOLS,
   SECONDARY_SCHOOLS,
-  UNIVERSITIES,
 } from './constants'
+import { HK_RESIDENTIAL_AREAS } from './data/hkResidence'
+import { JUPAS_PROGRAMMES } from './data/jupasProgrammes'
+import { applyFamilyChoiceEffects } from './familyEvents'
+import { PROMOTION_RATES } from './leadership'
 import { tickSalaryProgression } from './salaryScale'
 import { createRng, percentile, pickOne, randomInt } from './rng'
-import { drawJumpAds, formatJumpAdLine } from './jumpAds'
+import { drawJumpAds } from './jumpAds'
 import {
   buildJumpBrowseTurn,
   buildJumpTurn,
   buildJumpWaitingTurn,
   buildMicroTeaching,
   buildOriginTurn,
+  buildPgdeApplyTurn,
   buildPanelInterview,
   buildPrincipalInterview,
   buildSchoolPickTurn,
@@ -30,6 +33,7 @@ import {
   applyDelta,
   clampStat,
   createInitialState,
+  isTaSchoolBlocked,
   judgeOutcome,
   setContractJob,
   setTAJob,
@@ -37,6 +41,7 @@ import {
 import type { Choice, GameState, Origin, School } from './types'
 
 function rollOrigin(rng: () => number): Origin {
+  const programme = pickOne(rng, JUPAS_PROGRAMMES)
   const examRoll = rng()
   const exam = examRoll > 0.35 ? 'HKDSE' : 'HKALE'
   const examLabel =
@@ -48,17 +53,16 @@ function rollOrigin(rng: () => number): Origin {
       ? percentile(rng, 55, 96)
       : percentile(rng, 45, 92)
   return {
-    university: pickOne(rng, UNIVERSITIES),
+    university: programme.university,
     exam,
     examLabel,
     percentile: pct,
-    major: pickOne(rng, MAJORS),
+    major: programme.teachingSubject,
+    jupasProgramme: programme.name,
+    jupasCode: programme.code,
     pgdeNote: PGDE_RATE_TEXT,
   }
 }
-
-/** 原校 TA 升教席：多數仍須公開 second in 面試 */
-const TA_SAME_SCHOOL_REINTERVIEW_RATE = 0.82
 
 function pickTAPlacementSchool(state: GameState, rng: () => number): School {
   if (state.interviewSchool) return state.interviewSchool
@@ -70,14 +74,47 @@ function pickTAPlacementSchool(state: GameState, rng: () => number): School {
   return pickOne(rng, pool)
 }
 
-function drawSchools(level: '小學' | '中學', rng: () => number): School[] {
+function drawSchools(
+  level: '小學' | '中學',
+  rng: () => number,
+  preferred?: School | null,
+): School[] {
   const pool = level === '小學' ? [...PRIMARY_SCHOOLS] : [...SECONDARY_SCHOOLS]
   const picked: School[] = []
+  if (preferred) {
+    picked.push(preferred)
+    const idx = pool.findIndex((s) => s.name === preferred.name)
+    if (idx >= 0) pool.splice(idx, 1)
+  }
   while (picked.length < 3 && pool.length) {
     const i = Math.floor(rng() * pool.length)
     picked.push(pool.splice(i, 1)[0])
   }
   return picked
+}
+
+function checkRetirement(state: GameState): GameState {
+  if (state.age >= 60 && state.phase !== 'ending') {
+    return {
+      ...state,
+      phase: 'ending',
+      ending: 'retirement',
+      endingTitle: '結局：60 歲退休 — 告別教壇',
+      endingNarrative:
+        `你在 ${state.schoolName} 教到最後一個學年，校園廣播依然嘈，但你終於可以準時接孫仔放學。1 in 80K 嘅教師路，你用年資換來一張退休證——唔完美，但係你嘅版本。`,
+      currentTurn: null,
+    }
+  }
+  return state
+}
+
+function advanceCareerYear(state: GameState): GameState {
+  return {
+    ...state,
+    careerTurns: state.careerTurns + 1,
+    age: state.age + 1,
+    savings: state.savings + Math.max(0, Math.round(state.salary * 0.15)),
+  }
 }
 
 function interviewPass(
@@ -101,11 +138,14 @@ export function startNewGame(seed?: number): GameState {
   const base = createInitialState(seed)
   const rng = createRng(base.seed)
   const origin = rollOrigin(rng)
+  const residence = pickOne(rng, HK_RESIDENTIAL_AREAS)
   const state: GameState = {
     ...base,
     phase: 'origin',
     turn: 1,
     origin,
+    residence,
+    age: 22,
     currentTurn: null,
   }
   state.currentTurn = buildOriginTurn(state)
@@ -137,7 +177,7 @@ function checkSanEnding(state: GameState): GameState {
       ...state,
       phase: 'ending',
       ending: 'burnout',
-      endingTitle: '結局：SAN 歸零 — 精神崩潰',
+      endingTitle: '結局：精神健康值歸零 — 精神崩潰',
       endingNarrative:
         '你在教員室洗手間對住鏡喊到失聲，校工敲門問「老師 OK 嗎」。校長批准病假兩星期，但人事部暗示「可能唔適合繼續任教」。你辭職信同醫生紙一齊交上——香港教師生涯模擬器，Game Over。轉行做瑜伽導師？先睡足四十八小時再講。',
       currentTurn: null,
@@ -159,7 +199,7 @@ function finalizeCareer(state: GameState, rng: () => number): GameState {
         rank: '常額位',
         mpsPoint: clampStat(s.mpsPoint + 4, 12, 36),
         salary: mpsMonthlySalary(clampStat(s.mpsPoint + 4, 12, 36)),
-        endingTitle: '結局：常額位 (Perm) — 1 in 80 Billion 的贏家',
+        endingTitle: '結局：常額位 (Perm) — 1 in 80K 的贏家',
         endingNarrative: `經過多年合約奴工、TDD 與家長電郵，${s.schoolName} 終於批出常額位。月薪跳升，教員室有人恭喜、有人酸「內定」。你望住 MPS 表，唔知應該開心定繼續驚下個學年又有新改革。至少——你贏咗一場機率遊戲。`,
         currentTurn: null,
       }
@@ -200,10 +240,29 @@ export function resolveChoice(
   switch (state.phase) {
     case 'origin':
       if (choiceId === 'continue' || choice.successRate === 100) {
-        next.phase = 'jump'
-        next.currentTurn = buildJumpTurn()
+        next.phase = 'pgde_apply'
+        next.currentTurn = buildPgdeApplyTurn()
       }
       break
+
+    case 'pgde_apply': {
+      if (choiceId === 'pgde_apply_full') {
+        next.pgdeStatus =
+          next.lastJudgment === '大成功' || next.lastJudgment === '成功'
+            ? 'enrolled'
+            : next.lastJudgment === '失敗'
+              ? 'waitlisted'
+              : 'applying'
+      } else if (choiceId === 'pgde_apply_part') {
+        next.pgdeStatus =
+          next.lastJudgment === '大成功' || next.lastJudgment === '成功'
+            ? 'enrolled'
+            : 'applying'
+      }
+      next.phase = 'jump'
+      next.currentTurn = buildJumpTurn()
+      break
+    }
 
     case 'jump': {
       let level: '小學' | '中學' | null = null
@@ -219,7 +278,8 @@ export function resolveChoice(
         next.jumpLevel = level
         const adRng = createRng(next.seed + 77)
         const ads = drawJumpAds(level, adRng)
-        next.jumpAds = ads.map(formatJumpAdLine)
+        next.jumpAds = ads
+        next.selectedJumpAd = null
         next.phase = 'jump_browse'
         next.currentTurn = buildJumpBrowseTurn(level, next.jumpAds)
       }
@@ -231,9 +291,13 @@ export function resolveChoice(
       if (choiceId === 'jump_refresh') {
         const adRng = createRng(next.seed + next.turn * 13)
         const ads = drawJumpAds(level, adRng)
-        next.jumpAds = ads.map(formatJumpAdLine)
+        next.jumpAds = ads
         next.currentTurn = buildJumpBrowseTurn(level, next.jumpAds)
-      } else if (choiceId === 'jump_apply' || choiceId === 'custom') {
+      } else if (choiceId.startsWith('jump_pick_')) {
+        const adId = choiceId.replace('jump_pick_', '')
+        const ad = next.jumpAds.find((a) => a.id === adId) ?? null
+        next.selectedJumpAd = ad
+        next.interviewVacancySubject = ad?.subject ?? next.origin?.major ?? null
         next.phase = 'jump_waiting'
         next.currentTurn = buildJumpWaitingTurn(level)
       }
@@ -242,7 +306,8 @@ export function resolveChoice(
 
     case 'jump_waiting': {
       const level = next.jumpLevel!
-      next.schools = drawSchools(level, createRng(next.seed + 42))
+      const preferred = next.selectedJumpAd?.school ?? null
+      next.schools = drawSchools(level, createRng(next.seed + 42), preferred)
       next.currentSchoolIndex = 0
       next.interviewIsReInterview = false
       next.phase = 'school_pick'
@@ -270,7 +335,7 @@ export function resolveChoice(
           next.currentTurn = {
             title: '全軍覆沒 — 強制 TA',
             narrative:
-              `三間學校都無你份，或者你選擇放棄。人事部安排你到 ${taSchool.name}（${taSchool.district}）做教學助理：月薪 $17,000，日常印卷、整水機、維護學校網頁。科主任話「做熟咗可以推薦你再報跳跳網教席」——但多數仍要重新 second in。`,
+              `三間學校都無你份，或者你選擇放棄。人事部安排你到 ${taSchool.name}（${taSchool.district}）做教學助理：月薪 $17,000，日常印卷、整水機、維護學校網頁。**記住：做 TA 之後必須轉校**才可再任教席，唔可以喺同一間學校直接升做老師。`,
             percentileLines: ['TA 晉升教席機率：全港約 12%–18%'],
             choices: [
               {
@@ -293,13 +358,40 @@ export function resolveChoice(
       } else if (choiceId === 'research') {
         next.currentTurn = buildSchoolPickTurn(next.schools, next.currentSchoolIndex)
       } else if (choiceId === 'apply') {
+        if (isTaSchoolBlocked(next, school)) {
+          next.currentTurn = {
+            title: '無法應徵原校教席',
+            narrative: `人事部回覆：你曾於 ${school.name} 任 TA，按規定**必須轉校**才可再申請教席。請揀其他學校，或返回跳跳網。`,
+            choices: [
+              {
+                id: 'skip',
+                label: '轉試下一間學校',
+                description: '遵守轉校規則',
+                successRate: 100,
+                costs: '無',
+                effects: {
+                  大成功: {},
+                  成功: {},
+                  失敗: {},
+                  大失敗: {},
+                },
+              },
+            ],
+            allowCustom: false,
+          }
+          break
+        }
         next.interviewSchool = school
+        if (!next.interviewVacancySubject) {
+          next.interviewVacancySubject = next.selectedJumpAd?.subject ?? next.origin?.major ?? null
+        }
         next.phase = 'interview_panel'
         next.interviewIsReInterview = false
         next.currentTurn = buildPanelInterview(
           school,
           createRng(next.seed + next.turn),
           false,
+          next,
         )
       }
       break
@@ -310,6 +402,7 @@ export function resolveChoice(
       next.currentTurn = buildMicroTeaching(
         next.interviewSchool!,
         createRng(next.seed + next.turn),
+        next,
       )
       next.interviewPanelResult = next.lastJudgment
       break
@@ -336,6 +429,10 @@ export function resolveChoice(
       )
       if (passed) {
         next = setContractJob(next, school)
+        if (next.taBlockedSchoolName && school.name !== next.taBlockedSchoolName) {
+          next.taBlockedSchoolName = null
+          next.taSchool = null
+        }
         next.interviewIsReInterview = false
         next.phase = 'career'
         next.careerTurns = 0
@@ -384,7 +481,7 @@ export function resolveChoice(
         next.currentTurn = {
           title: state.rank === 'TA' ? '面試落敗 — 繼續做 TA' : '面試全滅 — TA 之路',
           narrative:
-            `三部曲面試後，人事部禮貌回覆「會保留履歷」。你到 ${taSchool.name}（${taSchool.district}）做 TA，月薪 $17,000，專業技能包括：換碳粉、修投影機、幫科主任貼標籤。狀態列會一直顯示學校與地區。`,
+            `三部曲面試後，人事部禮貌回覆「會保留履歷」。你到 ${taSchool.name}（${taSchool.district}）做 TA，月薪 $17,000。**日後要任教席必須轉校**，請用跳跳網申請其他學校。`,
           choices: [
             {
               id: 'ta_go',
@@ -416,12 +513,14 @@ export function resolveChoice(
         next.careerTurns = 0
         next.yearsAtSchool = 0
       } else {
-        next.careerTurns += 1
+        next = advanceCareerYear(next)
         const skipTenureYear =
           choiceId.startsWith('fg_assign_') || choiceId === 'fg_decline'
         if (!skipTenureYear) {
           next.yearsAtSchool += 1
         }
+        next = checkRetirement(next)
+        if (next.phase === 'ending') break
         if (
           next.rank === '合約教席' ||
           next.rank === '常額位'
@@ -440,60 +539,36 @@ export function resolveChoice(
         }
       }
 
-      if (choiceId === 'ta_same_school' && next.taSchool) {
-        const needInterview =
-          createRng(next.seed + next.turn * 19)() < TA_SAME_SCHOOL_REINTERVIEW_RATE
-        if (needInterview) {
-          next.interviewSchool = next.taSchool
-          next.interviewIsReInterview = true
-          next.schools = [next.taSchool]
-          next.currentSchoolIndex = 0
-          next.phase = 'career'
-          next.currentTurn = {
-            title: '原校升教席 — 重新 second in',
-            narrative: `人事部電郵：「雖然你係本校 TA，教席招聘仍須公開程序。」你要再走面試三部曲；校內傳言「熟口面」唔代表過關。學校：${next.taSchool.name}（${next.taSchool.district}）。`,
-            percentileLines: [
-              '全港原校 TA 內聘：約 75%–85% 須重新面試',
-            ],
-            choices: [
-              {
-                id: 'ta_reinterview_start',
-                label: '簽到候考室',
-                description: '進入 Panel',
-                successRate: 100,
-                costs: 'SAN -5',
-                effects: {
-                  大成功: {},
-                  成功: { san: -3 },
-                  失敗: { san: -5 },
-                  大失敗: { san: -8 },
-                },
-              },
-            ],
-            allowCustom: false,
-          }
-          break
-        }
-        const home = next.taSchool!
-        next = setContractJob(next, home)
-        next.phase = 'career'
-        next.careerTurns = next.careerTurns
+      if (choiceId === 'ta_same_school') {
         next.currentTurn = {
-          title: '罕有捷徑 — 內部加簽',
-          narrative: `極少數情況：${home.name}（${home.district}）直接將你轉為合約教席，跳過面試。同事眼神複雜——「程序上算過關」。續約率起點較低，謠言難免。`,
-          percentileLines: ['無面試內聘：估計少於 20% 原校 TA 個案'],
+          title: '原校教席 — 申請被拒',
+          narrative: `人事部正式回覆：你曾於 ${next.schoolName} 任 TA，按規定**不可於同一學校直接轉任教席**。唯一途徑：透過跳跳網**轉校**並通過 second in。`,
+          percentileLines: ['引擎規則：taBlockedSchoolName 鎖定原校直至轉校錄取'],
           choices: [
             {
-              id: 'career_go',
-              label: '簽約，開始教席',
-              description: '繼續職場事件',
+              id: 'ta_jump_hunt',
+              label: '[跳跳網] 轉校搵教席',
+              description: '正規路線',
               successRate: 100,
-              costs: '續約率 -5',
+              costs: '無',
               effects: {
-                大成功: { passion: 5 },
-                成功: { renewPerm: -5 },
-                失敗: { renewPerm: -8 },
-                大失敗: { renewPerm: -12, colleague: -8 },
+                大成功: {},
+                成功: {},
+                失敗: {},
+                大失敗: {},
+              },
+            },
+            {
+              id: 'ta_stay',
+              label: '[繼續] 做 TA',
+              description: '觀望',
+              successRate: 100,
+              costs: '無',
+              effects: {
+                大成功: {},
+                成功: {},
+                失敗: {},
+                大失敗: {},
               },
             },
           ],
@@ -509,7 +584,8 @@ export function resolveChoice(
         next.jumpLevel = level
         const adRng = createRng(next.seed + next.turn * 23)
         const ads = drawJumpAds(level, adRng)
-        next.jumpAds = ads.map(formatJumpAdLine)
+        next.jumpAds = ads
+        next.selectedJumpAd = null
         next.phase = 'jump_browse'
         next.currentTurn = buildJumpBrowseTurn(level, next.jumpAds)
         break
@@ -523,14 +599,27 @@ export function resolveChoice(
         break
       }
 
-      if (choiceId === 'ta_reinterview_start') {
-        next.phase = 'interview_panel'
-        next.currentTurn = buildPanelInterview(
-          next.interviewSchool!,
-          createRng(next.seed + next.turn),
-          true,
+      if (choiceId.startsWith('family_')) {
+        next = applyFamilyChoiceEffects(
+          next,
+          choiceId,
+          createRng(next.seed + next.turn * 41),
         )
-        break
+      }
+
+      if (choiceId.startsWith('promo_') && choiceId !== 'promo_skip') {
+        const target = choiceId.replace('promo_', '') as keyof typeof PROMOTION_RATES
+        if (
+          (next.lastJudgment === '大成功' || next.lastJudgment === '成功') &&
+          target in PROMOTION_RATES
+        ) {
+          next.leadershipRank = target as GameState['leadershipRank']
+          next.lastJudgmentText =
+            `${next.lastJudgmentText} 【晉升成功：${target}（設定機率 ${PROMOTION_RATES[target]}%）】`
+        } else if (target in PROMOTION_RATES) {
+          next.lastJudgmentText =
+            `${next.lastJudgmentText} 【晉升落敗：${target}（設定機率 ${PROMOTION_RATES[target]}%）】`
+        }
       }
 
       if (choiceId === 'fg_decline') {

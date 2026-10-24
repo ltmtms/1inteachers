@@ -1,3 +1,4 @@
+import { AppShell } from './components/AppShell'
 import { GameScreen } from './components/GameScreen'
 
 function App() {
@@ -6,7 +7,11 @@ function App() {
   const parsed = seedParam ? Number.parseInt(seedParam, 10) : undefined
   const initialSeed = Number.isFinite(parsed) ? parsed : undefined
 
-  return <GameScreen initialSeed={initialSeed} />
+  return (
+    <AppShell>
+      <GameScreen initialSeed={initialSeed} />
+    </AppShell>
+  )
 }
 
 export default App

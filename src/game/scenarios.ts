@@ -3,7 +3,11 @@ import {
   drawMicroTeaching,
   drawPanelQuestion,
   drawPrincipalInterview,
+  drawSubjectInterviewQuestion,
 } from './interviewQuestions'
+import { formatJumpAdLine, type JumpAd } from './jumpAds'
+import { tryPickFamilyEvent } from './familyEvents'
+import { buildLeadershipPromotionTurn, leadershipEligible } from './leadership'
 import {
   buildAdminGroupInviteTurn,
   buildFunctionalGroupAssignmentTurn,
@@ -36,9 +40,10 @@ export function buildOriginTurn(state: GameState): TurnContent {
   const o = state.origin!
   return {
     title: '第一階段：出身抽取',
-    narrative: `系統為你擲出 1 in 80 Billion 的命運骰子。你畢業於${o.university}，主修${o.major}，公開試為${o.exam}（${o.examLabel}）。履歷上寫著「未有 PGDE」——${o.pgdeNote}。教員室老師會說你「仲係 fresh grad」，但其實你已經在補習社教了兩年，只是唔敢寫落 CV。下一步：睇跳跳網，決定衝小學定中學戰場。`,
+    narrative: `系統為你擲出 **1 in 80K** 的命運骰子。你係本地大學畢業生，經 JUPAS 入讀 ${o.jupasProgramme}（${o.jupasCode}），畢業於${o.university}，主修／教席學科對照：${o.major}。公開試為${o.exam}（${o.examLabel}）。你住在 ${state.residence}，年齡 ${state.age} 歲。履歷上寫著「未有 PGDE」——${o.pgdeNote}。下一步：可先報 PGDE，再睇跳跳網搵工。`,
     percentileLines: [
       `全港分位：你的公開試成績打敗了 ${o.percentile}% 考生`,
+      `JUPAS 課程（非醫科）：${o.jupasProgramme}`,
       o.pgdeNote,
     ],
     choices: [
@@ -48,6 +53,55 @@ export function buildOriginTurn(state: GameState): TurnContent {
         失敗: {},
         大失敗: {},
       }),
+    ],
+    allowCustom: false,
+  }
+}
+
+export function buildPgdeApplyTurn(): TurnContent {
+  return {
+    title: 'PGDE 進修關',
+    narrative:
+      '教育局與大學聯招 PGDE 名額稀少；未持 PGDE 仍可申請合約教席，但學校會問「你幾時完成？」你可以現階段報讀全日制／兼讀 PGDE——程序繁複、等候時間長，而且每次申請都會消耗精神健康值。亦可選擇先搵工，日後再進修。',
+    percentileLines: [
+      '全日制 PGDE 錄取率：約 5%–12%（視學科）',
+      '報名／面試／候補均會增加壓力',
+    ],
+    choices: [
+      choice(
+        'pgde_apply_full',
+        '[報名] 全日制 PGDE',
+        '多步驟、低錄取率',
+        12,
+        '精神健康 -12',
+        {
+          大成功: { san: -8, passion: 8 },
+          成功: { san: -12 },
+          失敗: { san: -18, passion: -5 },
+          大失敗: { san: -25, passion: -10 },
+        },
+      ),
+      choice(
+        'pgde_apply_part',
+        '[報名] 兼讀 PGDE（邊做邊讀）',
+        '更難兼顧',
+        8,
+        '精神健康 -15',
+        {
+          大成功: { san: -10 },
+          成功: { san: -15 },
+          失敗: { san: -22 },
+          大失敗: { san: -28, passion: -8 },
+        },
+      ),
+      choice(
+        'pgde_skip',
+        '[暫不報] 先搵教席',
+        '直接睇跳跳網',
+        100,
+        '無',
+        emptyEffects,
+      ),
     ],
     allowCustom: false,
   }
@@ -81,34 +135,37 @@ export function buildJumpTurn(): TurnContent {
 
 export function buildJumpBrowseTurn(
   level: '小學' | '中學',
-  adLines: string[],
+  ads: JumpAd[],
 ): TurnContent {
-  const list = adLines.map((line, i) => `${i + 1}. ${line}`).join('\n')
+  const list = ads.map((ad, i) => `${i + 1}. ${formatJumpAdLine(ad)}`).join('\n')
+  const adChoices = ads.map((ad) =>
+    choice(
+      `jump_pick_${ad.id}`,
+      `[投書] ${ad.subject} · ${ad.school.name}`,
+      `${ad.school.district}｜${ad.contract}`,
+      100,
+      '精神健康 -3（焦慮）',
+      {
+        大成功: { passion: 3 },
+        成功: { san: -3 },
+        失敗: { san: -5 },
+        大失敗: { san: -8 },
+      },
+    ),
+  )
   return {
     title: '跳跳網 · 招聘廣告列',
-    narrative: `你設定搜尋：${level} · 合約／常額教席。跳跳網列出最新職位（樣本廣告，非即時抓取外部網站）：\n${list}\n\n現實裡每個職位都要上載履歷、教學理念、推薦信；校方或 HR 公司會篩選才邀請面試。你可以「投書並等回覆」，或再刷新頁面碰運氣（純敘事，不影響難度）。`,
+    narrative: `你設定搜尋：${level} · 合約／常額教席。請**揀一個職位**投書（樣本廣告，非即時抓取）：\n${list}\n\n面試會包含與職位學科相關的專題題目。亦可刷新頁面換一批廣告。`,
     percentileLines: [
       '全港教席空缺競爭：Band 1 學校常見每職數十至上百份申請',
       '資料來源：學校名稱及地區對照 CHSC 學校概覽',
     ],
     choices: [
-      choice(
-        'jump_apply',
-        '[投書] 鎖定三間志願等回覆',
-        '進入等待 second in',
-        100,
-        'SAN -3（焦慮）',
-        {
-          大成功: { passion: 3 },
-          成功: { san: -3 },
-          失敗: { san: -5 },
-          大失敗: { san: -8 },
-        },
-      ),
+      ...adChoices,
       choice(
         'jump_refresh',
         '[刷新] 再睇一輪廣告',
-        '純敘事，稍減焦慮',
+        '換一批職位',
         100,
         '無',
         {
@@ -119,7 +176,7 @@ export function buildJumpBrowseTurn(
         },
       ),
     ],
-    allowCustom: true,
+    allowCustom: false,
   }
 }
 
@@ -156,7 +213,7 @@ export function buildSchoolPickTurn(
     : '學校概覽：資料由校方提供（CHSC）。'
   return {
     title: `面試志願 ${index + 1}／${schools.length}`,
-    narrative: `你鎖定「${schoolLocationLabel(s)}」｜${schoolTypeLabel(s)}。${profile} 教員室傳聞話加班係常態。合約續約／轉 Perm 難度指數 ${s.difficulty}／100。你可以硬闖面試三部曲，或者放棄轉下一間——全敗的話，系統會安排你做該校或同類學校的 TA（月薪 $${TA_MONTHLY_SALARY.toLocaleString()}；職責：印卷、整水機、維護網頁），狀態列會顯示學校名稱與地區。`,
+    narrative: `你鎖定「${schoolLocationLabel(s)}」｜${schoolTypeLabel(s)}。${profile} 教員室傳聞話加班係常態。面試難度指數 ${s.difficulty}／100。你可以硬闖面試三部曲，或者放棄轉下一間——全敗而仍未持 PGDE／未獲教席，系統會安排你做 TA（月薪 $${TA_MONTHLY_SALARY.toLocaleString()}）。**重要：做過 TA 後必須轉校**才可再任教席，唔可以喺同一間學校由 TA 直接升做老師。`,
     percentileLines: [
       `根據歷年數據，類似背景獲取錄機率約 ${pct}%`,
       `面試難度分位：高於全港 ${s.difficulty}% 申請者會在此學校碰壁`,
@@ -205,13 +262,47 @@ export function buildPanelInterview(
   school: School,
   rng: () => number,
   reInterview = false,
+  state?: GameState,
 ): TurnContent {
   const drawn = drawPanelQuestion(school, rng, reInterview)
+  const subject =
+    state?.interviewVacancySubject ?? state?.origin?.major ?? '公社科'
+  const subjectQ = drawSubjectInterviewQuestion(
+    subject,
+    state?.origin?.major ?? '',
+    rng,
+  )
   return {
     title: reInterview ? '面試 I：原校內聘 Panel（重新 second in）' : '面試 I：科主任 Panel',
-    narrative: `${drawn.narrative} 你可以硬「面試扮識」引用最新教育潮語，或者誠實承認不足並展示教案。`,
+    narrative: `${drawn.narrative}\n\n${subjectQ.narrative} 你可以硬「面試扮識」引用最新教育潮語，或者誠實承認不足並展示教案。`,
     percentileLines: drawn.percentileLines,
     choices: [
+      choice(
+        'subject_strong',
+        '[學科] 具體教案＋評估設計',
+        '對準招聘學科',
+        72,
+        '精神健康 -5',
+        {
+          大成功: { principal: 15, passion: 8 },
+          成功: { principal: 8, san: -5 },
+          失敗: { principal: -8, san: -12 },
+          大失敗: { principal: -15, san: -18 },
+        },
+      ),
+      choice(
+        'subject_weak',
+        '[學科] 空泛口號應付',
+        '易被追問',
+        28,
+        '錄取率下降',
+        {
+          大成功: { principal: 5 },
+          成功: {},
+          失敗: { principal: -12, san: -10 },
+          大失敗: { principal: -20, san: -16 },
+        },
+      ),
       choice(
         'bluff',
         '[扮識] 狂拋 buzzword',
@@ -256,8 +347,17 @@ export function buildPanelInterview(
   }
 }
 
-export function buildMicroTeaching(school: School, rng: () => number): TurnContent {
-  const drawn = drawMicroTeaching(school, rng)
+export function buildMicroTeaching(
+  school: School,
+  rng: () => number,
+  state?: GameState,
+): TurnContent {
+  const drawn = drawMicroTeaching(
+    school,
+    rng,
+    state?.interviewVacancySubject,
+    state?.origin?.major,
+  )
   return {
     title: '面試 II：試教 Micro-teaching',
     narrative: `${drawn.narrative} 你要即場改教案、用幽默化解，或者按本宣科硬撐完十五分鐘。`,
@@ -850,29 +950,29 @@ const taCareerEvents: CareerEventBuilder[] = [
       band: 0,
       funding: '津貼/資助',
       difficulty: 0,
-    })} 做 TA 已一段時間。科主任拍你膊頭：「下學年可能有合約位，你可以報跳跳網，或者走內部推薦。」但人事部補充：即使原校升教席，多數仍要重新 second in——「程序要對外講得通」。`,
+    })} 做 TA 已一段時間。科主任話「下學年可能有合約位」——但人事部明文：**你曾喺本校做 TA，不可喺同一間學校直接轉教席**，必須透過跳跳網**轉校**再面試。`,
     percentileLines: [
-      '原校 TA 轉教席：約 75%–85% 仍須重新面試',
+      '硬規則：TA 路線須轉校方可再任教席',
       `全港 TA 晉升教席：約 12%–18%`,
     ],
     choices: [
       choice(
         'ta_same_school',
-        '[原校] 申請內部教席',
-        '高機率重新面試',
-        55,
-        'SAN -8',
+        '[原校] 申請內部教席（已被拒）',
+        '程序上不可行',
+        5,
+        '精神健康 -10',
         {
-          大成功: { principal: 12, passion: 8 },
-          成功: { principal: 6 },
-          失敗: { san: -10 },
-          大失敗: { principal: -10, san: -15 },
+          大成功: { san: -8 },
+          成功: { san: -10 },
+          失敗: { san: -12 },
+          大失敗: { san: -18, passion: -8 },
         },
       ),
       choice(
         'ta_jump_hunt',
-        '[跳跳網] 對外投書其他學校',
-        '跳跳網流程',
+        '[跳跳網] 轉校投書其他學校',
+        '唯一正規路線',
         62,
         'SAN -5',
         {
@@ -916,6 +1016,11 @@ const taCareerEvents: CareerEventBuilder[] = [
 ]
 
 export function pickCareerEvent(state: GameState, rng: () => number): TurnContent {
+  const family = tryPickFamilyEvent(state, rng)
+  if (family) return family
+  if (leadershipEligible(state) && rng() < 0.14) {
+    return buildLeadershipPromotionTurn(state)
+  }
   if (state.rank === 'TA' && rng() < 0.42) {
     const idx = randomInt(rng, 0, taCareerEvents.length - 1)
     return taCareerEvents[idx](state, rng)
