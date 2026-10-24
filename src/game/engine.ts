@@ -11,9 +11,18 @@ import { applyFamilyChoiceEffects } from './familyEvents'
 import { PROMOTION_RATES } from './leadership'
 import { tickSalaryProgression } from './salaryScale'
 import { createRng, percentile, pickOne, randomInt } from './rng'
-import { drawJumpAds } from './jumpAds'
 import {
+  coverLetterStyleById,
+  formatInviteReplyLines,
+  rollInterviewInvites,
+  type CoverLetterStyleId,
+} from './coverLetter'
+import { drawJumpAds, type JumpAd } from './jumpAds'
+import {
+  buildJumpApplyPickTurn,
   buildJumpBrowseTurn,
+  buildJumpCoverLetterTurn,
+  buildJumpNoInviteTurn,
   buildJumpTurn,
   buildJumpWaitingTurn,
   buildMicroTeaching,
@@ -23,6 +32,7 @@ import {
   buildPrincipalInterview,
   buildSchoolPickTurn,
   customActionChoice,
+  MAX_JUMP_APPLICATIONS,
   pickCareerEvent,
 } from './scenarios'
 import {
@@ -69,28 +79,36 @@ function pickTAPlacementSchool(state: GameState, rng: () => number): School {
   const idxSchool = state.schools[state.currentSchoolIndex]
   if (idxSchool) return idxSchool
   if (state.taSchool) return state.taSchool
+  if (state.jumpAppliedSchools.length) {
+    return pickOne(rng, state.jumpAppliedSchools)
+  }
   const pool =
     state.jumpLevel === '小學' ? [...PRIMARY_SCHOOLS] : [...SECONDARY_SCHOOLS]
   return pickOne(rng, pool)
 }
 
-function drawSchools(
-  level: '小學' | '中學',
-  rng: () => number,
-  preferred?: School | null,
-): School[] {
-  const pool = level === '小學' ? [...PRIMARY_SCHOOLS] : [...SECONDARY_SCHOOLS]
-  const picked: School[] = []
-  if (preferred) {
-    picked.push(preferred)
-    const idx = pool.findIndex((s) => s.name === preferred.name)
-    if (idx >= 0) pool.splice(idx, 1)
+function coverStyleFromChoice(choiceId: string, customText?: string): CoverLetterStyleId {
+  if (choiceId.startsWith('cover_')) {
+    return choiceId.slice('cover_'.length) as CoverLetterStyleId
   }
-  while (picked.length < 3 && pool.length) {
-    const i = Math.floor(rng() * pool.length)
-    picked.push(pool.splice(i, 1)[0])
-  }
-  return picked
+  if (customText?.includes('武')) return 'wuxia'
+  if (customText?.includes('謙') || customText?.includes('溫')) return 'modest'
+  if (customText?.includes('進取') || customText?.includes('積極')) return 'assertive'
+  return 'pragmatic'
+}
+
+function appliedAdsFromSelection(state: GameState): JumpAd[] {
+  const ids = new Set(state.jumpSelectedAdIds)
+  return state.jumpAds.filter((ad) => ids.has(ad.id))
+}
+
+function appliedSchoolsFromSelection(state: GameState): School[] {
+  return appliedAdsFromSelection(state).map((ad) => ad.school)
+}
+
+function vacancySubjectForSchool(state: GameState, school: School): string {
+  const ad = state.jumpAppliedAds.find((a) => a.school.name === school.name)
+  return ad?.subject ?? state.origin?.major ?? '公社科'
 }
 
 function checkRetirement(state: GameState): GameState {
@@ -279,7 +297,12 @@ export function resolveChoice(
         const adRng = createRng(next.seed + 77)
         const ads = drawJumpAds(level, adRng)
         next.jumpAds = ads
-        next.selectedJumpAd = null
+        next.jumpSelectedAdIds = []
+        next.jumpAppliedAds = []
+        next.jumpAppliedSchools = []
+        next.coverLetterStyle = null
+        next.jumpReplySummary = []
+        next.interviewVacancySubject = null
         next.phase = 'jump_browse'
         next.currentTurn = buildJumpBrowseTurn(level, next.jumpAds)
       }
@@ -292,26 +315,131 @@ export function resolveChoice(
         const adRng = createRng(next.seed + next.turn * 13)
         const ads = drawJumpAds(level, adRng)
         next.jumpAds = ads
+        next.jumpSelectedAdIds = []
         next.currentTurn = buildJumpBrowseTurn(level, next.jumpAds)
-      } else if (choiceId.startsWith('jump_pick_')) {
-        const adId = choiceId.replace('jump_pick_', '')
-        const ad = next.jumpAds.find((a) => a.id === adId) ?? null
-        next.selectedJumpAd = ad
-        next.interviewVacancySubject = ad?.subject ?? next.origin?.major ?? null
+      } else if (choiceId === 'jump_apply' || choiceId === 'custom') {
+        next.phase = 'jump_apply_pick'
+        next.currentTurn = buildJumpApplyPickTurn(
+          next.jumpAds,
+          next.jumpSelectedAdIds,
+        )
+      }
+      break
+    }
+
+    case 'jump_apply_pick': {
+      const level = next.jumpLevel!
+      if (choiceId.startsWith('jump_toggle_')) {
+        const adId = choiceId.slice('jump_toggle_'.length)
+        const selected = [...next.jumpSelectedAdIds]
+        const at = selected.indexOf(adId)
+        if (at >= 0) selected.splice(at, 1)
+        else if (selected.length < MAX_JUMP_APPLICATIONS) selected.push(adId)
+        next.jumpSelectedAdIds = selected
+        next.currentTurn = buildJumpApplyPickTurn(next.jumpAds, selected)
+      } else if (choiceId === 'jump_back_browse') {
+        next.phase = 'jump_browse'
+        next.currentTurn = buildJumpBrowseTurn(level, next.jumpAds)
+      } else if (choiceId === 'jump_confirm_apply') {
+        if (next.jumpSelectedAdIds.length === 0) {
+          next.currentTurn = buildJumpApplyPickTurn(
+            next.jumpAds,
+            next.jumpSelectedAdIds,
+          )
+        } else {
+          next.jumpAppliedAds = appliedAdsFromSelection(next)
+          next.jumpAppliedSchools = appliedSchoolsFromSelection(next)
+          next.phase = 'jump_cover_letter'
+          next.currentTurn = buildJumpCoverLetterTurn(next.jumpAppliedSchools)
+        }
+      }
+      break
+    }
+
+    case 'jump_cover_letter': {
+      const level = next.jumpLevel!
+      if (choiceId.startsWith('cover_') || choiceId === 'custom') {
+        const styleId = coverStyleFromChoice(choiceId, customText)
+        next.coverLetterStyle = styleId
+        const style = coverLetterStyleById(styleId)
         next.phase = 'jump_waiting'
-        next.currentTurn = buildJumpWaitingTurn(level)
+        next.currentTurn = buildJumpWaitingTurn(level, style.label)
       }
       break
     }
 
     case 'jump_waiting': {
       const level = next.jumpLevel!
-      const preferred = next.selectedJumpAd?.school ?? null
-      next.schools = drawSchools(level, createRng(next.seed + 42), preferred)
+      const styleId = next.coverLetterStyle ?? 'pragmatic'
+      const inviteRng = createRng(next.seed + next.turn * 31 + 42)
+      const { invited, declined } = rollInterviewInvites(
+        next.jumpAppliedSchools,
+        styleId,
+        inviteRng,
+      )
+      next.jumpReplySummary = formatInviteReplyLines(invited, declined, styleId)
+      next.schools = invited
       next.currentSchoolIndex = 0
       next.interviewIsReInterview = false
-      next.phase = 'school_pick'
-      next.currentTurn = buildSchoolPickTurn(next.schools, 0)
+      if (invited.length > 0) {
+        next.phase = 'school_pick'
+        next.currentTurn = buildSchoolPickTurn(
+          next.schools,
+          0,
+          next.jumpReplySummary,
+        )
+      } else {
+        next.phase = 'jump_no_invite'
+        next.currentTurn = buildJumpNoInviteTurn(level)
+      }
+      break
+    }
+
+    case 'jump_no_invite': {
+      const level = next.jumpLevel!
+      if (choiceId === 'jump_retry') {
+        const adRng = createRng(next.seed + next.turn * 17)
+        const ads = drawJumpAds(level, adRng)
+        next.jumpAds = ads
+        next.jumpSelectedAdIds = []
+        next.jumpAppliedAds = []
+        next.jumpAppliedSchools = []
+        next.coverLetterStyle = null
+        next.jumpReplySummary = []
+        next.interviewVacancySubject = null
+        next.phase = 'jump_browse'
+        next.currentTurn = buildJumpBrowseTurn(level, next.jumpAds)
+      } else if (choiceId === 'jump_ta_fallback' || choiceId === 'custom') {
+        const taSchool = pickTAPlacementSchool(
+          next,
+          createRng(next.seed + next.turn),
+        )
+        next = setTAJob(next, taSchool)
+        next.phase = 'career'
+        next.careerTurns = 0
+        next.currentTurn = {
+          title: '無面試邀請 — 過渡 TA',
+          narrative:
+            `今輪投書沒有學校約 second in。人事中介安排你到 ${taSchool.name}（${taSchool.district}）做教學助理：月薪 $17,000，日常印卷、整水機、維護學校網頁。科主任話「做熟咗可以再報跳跳網」——多數仍要重新面試。`,
+          percentileLines: next.jumpReplySummary,
+          choices: [
+            {
+              id: 'ta_start',
+              label: '接受現實，開始校園修羅場',
+              description: '進入職場事件池',
+              successRate: 100,
+              costs: '無',
+              effects: {
+                大成功: {},
+                成功: {},
+                失敗: {},
+                大失敗: {},
+              },
+            },
+          ],
+          allowCustom: false,
+        }
+      }
       break
     }
 
@@ -335,7 +463,7 @@ export function resolveChoice(
           next.currentTurn = {
             title: '全軍覆沒 — 強制 TA',
             narrative:
-              `三間學校都無你份，或者你選擇放棄。人事部安排你到 ${taSchool.name}（${taSchool.district}）做教學助理：月薪 $17,000，日常印卷、整水機、維護學校網頁。**記住：做 TA 之後必須轉校**才可再任教席，唔可以喺同一間學校直接升做老師。`,
+              `本輪獲邀學校都無你份，或者你選擇放棄。人事部安排你到 ${taSchool.name}（${taSchool.district}）做教學助理：月薪 $17,000，日常印卷、整水機、維護學校網頁。**記住：做 TA 之後必須轉校**才可再任教席，唔可以喺同一間學校直接升做老師。`,
             percentileLines: ['TA 晉升教席機率：全港約 12%–18%'],
             choices: [
               {
@@ -382,9 +510,7 @@ export function resolveChoice(
           break
         }
         next.interviewSchool = school
-        if (!next.interviewVacancySubject) {
-          next.interviewVacancySubject = next.selectedJumpAd?.subject ?? next.origin?.major ?? null
-        }
+        next.interviewVacancySubject = vacancySubjectForSchool(next, school)
         next.phase = 'interview_panel'
         next.interviewIsReInterview = false
         next.currentTurn = buildPanelInterview(
@@ -466,6 +592,7 @@ export function resolveChoice(
         next.currentTurn = buildSchoolPickTurn(
           next.schools,
           next.currentSchoolIndex,
+          next.currentSchoolIndex === 0 ? next.jumpReplySummary : undefined,
         )
       } else {
         const taSchool =
@@ -585,7 +712,12 @@ export function resolveChoice(
         const adRng = createRng(next.seed + next.turn * 23)
         const ads = drawJumpAds(level, adRng)
         next.jumpAds = ads
-        next.selectedJumpAd = null
+        next.jumpSelectedAdIds = []
+        next.jumpAppliedAds = []
+        next.jumpAppliedSchools = []
+        next.coverLetterStyle = null
+        next.jumpReplySummary = []
+        next.interviewVacancySubject = null
         next.phase = 'jump_browse'
         next.currentTurn = buildJumpBrowseTurn(level, next.jumpAds)
         break

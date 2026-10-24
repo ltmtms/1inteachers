@@ -53,7 +53,7 @@ function turnText(state: GameState): string {
 function teachingSubject(state: GameState): string | undefined {
   return (
     state.interviewVacancySubject ??
-    state.selectedJumpAd?.subject ??
+    state.jumpAppliedAds[0]?.subject ??
     state.origin?.major
   )
 }

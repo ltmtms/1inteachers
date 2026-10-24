@@ -1,3 +1,4 @@
+import type { CoverLetterStyleId } from './coverLetter'
 import type { JumpAd } from './jumpAds'
 import type { TeacherSalaryTrack } from './salaryScale'
 
@@ -11,7 +12,10 @@ export type GamePhase =
   | 'pgde_apply'
   | 'jump'
   | 'jump_browse'
+  | 'jump_apply_pick'
+  | 'jump_cover_letter'
   | 'jump_waiting'
+  | 'jump_no_invite'
   | 'school_pick'
   | 'interview_panel'
   | 'interview_micro'
@@ -116,7 +120,15 @@ export interface GameState {
   /** 本輪面試是否為原校 TA 重新 second in */
   interviewIsReInterview: boolean
   jumpAds: JumpAd[]
-  selectedJumpAd: JumpAd | null
+  /** 玩家勾選要投書的廣告 id（最多三間） */
+  jumpSelectedAdIds: string[]
+  /** 已確認投書的廣告（含學科；供面試專題題） */
+  jumpAppliedAds: JumpAd[]
+  /** 已確認投書的學校（送出求職信後） */
+  jumpAppliedSchools: School[]
+  coverLetterStyle: CoverLetterStyleId | null
+  /** 等回覆後顯示於面試志願前的摘要 */
+  jumpReplySummary: string[]
   /** 本輪面試招聘學科（來自廣告或學校） */
   interviewVacancySubject: string | null
   passion: number
