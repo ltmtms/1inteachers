@@ -1,4 +1,7 @@
+import { COVER_LETTER_STYLES } from './coverLetter'
 import { schoolLocationLabel, schoolTypeLabel, TA_MONTHLY_SALARY } from './constants'
+import { formatJumpAdLine } from './jumpAds'
+import type { SerializedJumpAd } from './types'
 import {
   drawMicroTeaching,
   drawPanelQuestion,
@@ -57,7 +60,7 @@ export function buildJumpTurn(): TurnContent {
   return {
     title: '睇跳跳網',
     narrative:
-      '你登入跳跳網：篩選「津貼／資助」「直資」職位，略過官立同國際學校。凌晨三點頁面仍會更新——小學職位多但「八達通老師」傳言不絕；中學薪金靚但 second in 委會會問到你靈魂深處。名單來自教育局學校資料入口所連結的 CHSC 學校概覽（津貼／資助及直資 DSS）。先選路線，下一步會顯示模擬招聘廣告，再進入投書、等回覆、面試志願流程。',
+      '你登入跳跳網：篩選「津貼／資助」「直資」職位，略過官立同國際學校。凌晨三點頁面仍會更新——小學職位多但「八達通老師」傳言不絕；中學薪金靚但 second in 委會會問到你靈魂深處。名單來自教育局學校資料入口所連結的 CHSC 學校概覽（津貼／資助及直資 DSS）。先選路線，下一步會顯示模擬招聘廣告，再按流程：選校投書 → 撰寫求職信風格 → 等候隨機回覆與 second in。',
     choices: [
       choice('pri', '【小學】', '申請小學教席路線', 100, '無代價', emptyEffects),
       choice('sec', '【中學】', '申請中學教席路線', 100, '無代價', emptyEffects),
@@ -86,7 +89,7 @@ export function buildJumpBrowseTurn(
   const list = adLines.map((line, i) => `${i + 1}. ${line}`).join('\n')
   return {
     title: '跳跳網 · 招聘廣告列',
-    narrative: `你設定搜尋：${level} · 合約／常額教席。跳跳網列出最新職位（樣本廣告，非即時抓取外部網站）：\n${list}\n\n現實裡每個職位都要上載履歷、教學理念、推薦信；校方或 HR 公司會篩選才邀請面試。你可以「投書並等回覆」，或再刷新頁面碰運氣（純敘事，不影響難度）。`,
+    narrative: `你設定搜尋：${level} · 合約／常額教席。跳跳網列出最新職位（樣本廣告，非即時抓取外部網站）：\n${list}\n\n現實裡每個職位都要上載履歷、教學理念、求職信；校方或 HR 公司會篩選才邀請面試。下一步請從列表中選擇要投書的學校（最多三間），再撰寫求職信並等候回覆。亦可刷新頁面再看一輪廣告（純敘事）。`,
     percentileLines: [
       '全港教席空缺競爭：Band 1 學校常見每職數十至上百份申請',
       '資料來源：學校名稱及地區對照 CHSC 學校概覽',
@@ -94,15 +97,15 @@ export function buildJumpBrowseTurn(
     choices: [
       choice(
         'jump_apply',
-        '[投書] 鎖定三間志願等回覆',
-        '進入等待 second in',
+        '[投書] 選擇志願學校',
+        '從本頁廣告挑選最多三間，再寫求職信',
         100,
-        'SAN -3（焦慮）',
+        'SAN -2（準備材料）',
         {
           大成功: { passion: 3 },
-          成功: { san: -3 },
-          失敗: { san: -5 },
-          大失敗: { san: -8 },
+          成功: { san: -2 },
+          失敗: { san: -4 },
+          大失敗: { san: -6 },
         },
       ),
       choice(
@@ -123,19 +126,127 @@ export function buildJumpBrowseTurn(
   }
 }
 
-export function buildJumpWaitingTurn(level: '小學' | '中學'): TurnContent {
+export const MAX_JUMP_APPLICATIONS = 3
+
+export function buildJumpApplyPickTurn(
+  ads: SerializedJumpAd[],
+  selectedIds: string[],
+): TurnContent {
+  const selected = new Set(selectedIds)
+  const pickedLines = ads
+    .filter((a) => selected.has(a.id))
+    .map((a) => `· ${a.school.name}（${a.subject}）`)
+    .join('\n')
+  const header = selectedIds.length
+    ? `已選 ${selectedIds.length}／${MAX_JUMP_APPLICATIONS} 間：\n${pickedLines}\n\n點選下方職位可加入或取消志願。`
+    : `請從本頁最多 ${MAX_JUMP_APPLICATIONS} 間學校投書（按職位勾選）。`
+
+  const toggleChoices = ads.map((ad) => {
+    const isOn = selected.has(ad.id)
+    const atCap = !isOn && selectedIds.length >= MAX_JUMP_APPLICATIONS
+    return choice(
+      `jump_toggle_${ad.id}`,
+      `${isOn ? '✓ ' : ''}[志願] ${ad.school.name} · ${ad.subject}`,
+      atCap
+        ? '已達三間上限，請先取消其他志願'
+        : formatJumpAdLine({
+            id: ad.id,
+            school: ad.school,
+            subject: ad.subject,
+            contract: ad.contract,
+            postedDaysAgo: ad.postedDaysAgo,
+            applicantsNote: ad.applicantsNote,
+          }),
+      100,
+      isOn ? '取消志願' : '加入志願',
+      emptyEffects,
+    )
+  })
+
+  const confirm = choice(
+    'jump_confirm_apply',
+    `[送出] 確認投書（${selectedIds.length} 間）`,
+    selectedIds.length
+      ? '下一步：選擇求職信風格'
+      : '請至少選擇一間學校',
+    selectedIds.length ? 100 : 0,
+    'SAN -3（寄出焦慮）',
+    {
+      大成功: { passion: 2 },
+      成功: { san: -3 },
+      失敗: { san: -5 },
+      大失敗: { san: -7 },
+    },
+  )
+
+  const back = choice(
+    'jump_back_browse',
+    '[返回] 再看招聘廣告',
+    '不重置已選志願',
+    100,
+    '無',
+    emptyEffects,
+  )
+
+  return {
+    title: '跳跳網 · 選擇投書學校',
+    narrative: header,
+    percentileLines: [
+      `每輪最多投書 ${MAX_JUMP_APPLICATIONS} 間；獲邀面試為獨立隨機，視學校與運氣`,
+      '資料來源：CHSC 學校概覽（津貼／資助及直資 DSS）',
+    ],
+    choices: [...toggleChoices, confirm, back],
+    allowCustom: false,
+  }
+}
+
+export function buildJumpCoverLetterTurn(
+  appliedSchools: School[],
+): TurnContent {
+  const names = appliedSchools.map((s) => s.name).join('、')
+  const styleChoices = COVER_LETTER_STYLES.map((st) =>
+    choice(
+      `cover_${st.id}`,
+      `【${st.label}】`,
+      `${st.preview}\n— ${st.description}`,
+      100,
+      '無（風格不決定是否入圍）',
+      {
+        大成功: { passion: 2 },
+        成功: {},
+        失敗: {},
+        大失敗: { san: -2 },
+      },
+    ),
+  )
+  return {
+    title: '跳跳網 · 撰寫求職信',
+    narrative: `你準備向 ${names} 寄出履歷與教學理念。最後一步：選一封求職信語氣（系統會附上對應摘錄）。校方是否邀請 second in 仍為隨機——風格只影響敘事與極少量機率微調（見說明）。`,
+    percentileLines: [
+      '基準邀請率約 32%／每間投書學校；風格加成最多約 +3%（非保證）',
+      'PGDE 仍未修讀？誠實路線在面試關仍會被追問',
+    ],
+    choices: styleChoices,
+    allowCustom: true,
+  }
+}
+
+export function buildJumpWaitingTurn(
+  level: '小學' | '中學',
+  styleLabel: string,
+): TurnContent {
   return {
     title: '跳跳網 · 等回覆',
-    narrative: `過了一星期，電郵信箱靜默，WhatsApp 只有補習社廣告。${level} 招聘旺季，HR 話「正在處理大量申請」。終於有三間學校願意安排 second in——未必係你投書嗰三間，但地區同類型符合你篩選。現實中有人等兩星期、有人兩個月；你嘅 SAN 已經先扣一截。`,
+    narrative: `求職信（${styleLabel}）已送出。過了一星期，電郵信箱大多靜默，WhatsApp 只有補習社廣告。${level} 招聘旺季，HR 自動回覆話「正在處理大量申請」。現實中有人等兩星期、有人兩個月——你按住 refresh 鍵，SAN 先扣一截。`,
     percentileLines: [
-      '獲邀面試率（新畢業生）：約 15%–35%，視學科與學校',
-      '下一關：地獄面試三部曲',
+      '每間投書學校獨立骰是否獲 second in 邀請',
+      '下一關：查看回覆並安排面試志願',
     ],
     choices: [
       choice(
         'jump_callbacks',
-        '[回覆] 確認三間面試時間',
-        '進入志願面試',
+        '[查看] 電郵與跳跳網回覆',
+        '揭曉本輪邀請結果',
         100,
         '無',
         emptyEffects,
@@ -145,9 +256,50 @@ export function buildJumpWaitingTurn(level: '小學' | '中學'): TurnContent {
   }
 }
 
+export function buildJumpNoInviteTurn(level: '小學' | '中學'): TurnContent {
+  return {
+    title: '跳跳網 · 本輪無面試邀請',
+    narrative: `你投書的學校今輪都沒有約 second in——在 ${level} 招聘市場並不罕見。補習社群主傳來「要唔要代課」；媽媽問「仲係待業？」。你可以刷新跳跳網再投一輪，或者先接受 TA 過渡（月薪 $${TA_MONTHLY_SALARY.toLocaleString()}，職責：印卷、整水機、維護網頁）。`,
+    percentileLines: [
+      '邀請為隨機結果，與求職信風格無必然關係',
+      'TA 仍可日後再投跳跳網搏教席',
+    ],
+    choices: [
+      choice(
+        'jump_retry',
+        '[刷新] 再睇廣告、重新投書',
+        '返回招聘列表',
+        100,
+        'SAN -2',
+        {
+          大成功: { passion: 3 },
+          成功: { san: -2 },
+          失敗: { san: -4 },
+          大失敗: { san: -6 },
+        },
+      ),
+      choice(
+        'jump_ta_fallback',
+        '[過渡] 接受 TA 安排',
+        '從曾投書的學校或同類學校開始',
+        100,
+        '熱誠 -15；SAN -10',
+        {
+          大成功: {},
+          成功: { passion: -15, san: -10 },
+          失敗: { passion: -18, san: -12 },
+          大失敗: { passion: -22, san: -15 },
+        },
+      ),
+    ],
+    allowCustom: true,
+  }
+}
+
 export function buildSchoolPickTurn(
   schools: School[],
   index: number,
+  replySummary?: string[],
 ): TurnContent {
   const s = schools[index]
   const pct = Math.max(5, 95 - s.difficulty)
@@ -156,8 +308,9 @@ export function buildSchoolPickTurn(
     : '學校概覽：資料由校方提供（CHSC）。'
   return {
     title: `面試志願 ${index + 1}／${schools.length}`,
-    narrative: `你鎖定「${schoolLocationLabel(s)}」｜${schoolTypeLabel(s)}。${profile} 教員室傳聞話加班係常態。合約續約／轉 Perm 難度指數 ${s.difficulty}／100。你可以硬闖面試三部曲，或者放棄轉下一間——全敗的話，系統會安排你做該校或同類學校的 TA（月薪 $${TA_MONTHLY_SALARY.toLocaleString()}；職責：印卷、整水機、維護網頁），狀態列會顯示學校名稱與地區。`,
+    narrative: `你應徵「${schoolLocationLabel(s)}」｜${schoolTypeLabel(s)}。${profile} 教員室傳聞話加班係常態。合約續約／轉 Perm 難度指數 ${s.difficulty}／100。你可以硬闖面試三部曲，或者放棄轉下一間——全敗的話，系統會安排你做該校或同類學校的 TA（月薪 $${TA_MONTHLY_SALARY.toLocaleString()}；職責：印卷、整水機、維護網頁），狀態列會顯示學校名稱與地區。`,
     percentileLines: [
+      ...(index === 0 && replySummary?.length ? replySummary : []),
       `根據歷年數據，類似背景獲取錄機率約 ${pct}%`,
       `面試難度分位：高於全港 ${s.difficulty}% 申請者會在此學校碰壁`,
     ],

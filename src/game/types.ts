@@ -1,3 +1,4 @@
+import type { CoverLetterStyleId } from './coverLetter'
 import type { TeacherSalaryTrack } from './salaryScale'
 
 export type Judgment = '大成功' | '成功' | '失敗' | '大失敗'
@@ -9,7 +10,10 @@ export type GamePhase =
   | 'origin'
   | 'jump'
   | 'jump_browse'
+  | 'jump_apply_pick'
+  | 'jump_cover_letter'
   | 'jump_waiting'
+  | 'jump_no_invite'
   | 'school_pick'
   | 'interview_panel'
   | 'interview_micro'
@@ -34,6 +38,16 @@ export type FunctionalGroupId =
   | 'counselling'
 
 export type SchoolFunding = '津貼/資助' | '直資 (DSS)'
+
+/** 可 JSON 序列化的跳跳網廣告快照 */
+export interface SerializedJumpAd {
+  id: string
+  school: School
+  subject: string
+  contract: string
+  postedDaysAgo: number
+  applicantsNote: string
+}
 
 export interface School {
   name: string
@@ -102,6 +116,15 @@ export interface GameState {
   /** 本輪面試是否為原校 TA 重新 second in */
   interviewIsReInterview: boolean
   jumpAds: string[]
+  /** 本輪跳跳網廣告（投書時對應學校） */
+  jumpCurrentAds: SerializedJumpAd[]
+  /** 玩家勾選要投書的廣告 id（最多三間） */
+  jumpSelectedAdIds: string[]
+  /** 已確認投書的學校（送出求職信後） */
+  jumpAppliedSchools: School[]
+  coverLetterStyle: CoverLetterStyleId | null
+  /** 等回覆後顯示於面試志願前的摘要 */
+  jumpReplySummary: string[]
   passion: number
   san: number
   principal: number

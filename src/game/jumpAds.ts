@@ -1,5 +1,5 @@
 import { PRIMARY_SCHOOLS, SECONDARY_SCHOOLS, schoolTypeLabel } from './constants'
-import type { School } from './types'
+import type { School, SerializedJumpAd } from './types'
 import { pickOne, randomInt } from './rng'
 
 /** Static sample postings for in-game 跳跳網 (inspired by jump.hk); not fetched at runtime. */
@@ -69,6 +69,11 @@ export function drawJumpAds(
     ads.push(makeAd(school, level, rng, i))
   }
   return ads
+}
+
+export function serializeJumpAd(ad: JumpAd): SerializedJumpAd {
+  const { id, school, subject, contract, postedDaysAgo, applicantsNote } = ad
+  return { id, school, subject, contract, postedDaysAgo, applicantsNote }
 }
 
 export function formatJumpAdLine(ad: JumpAd): string {
