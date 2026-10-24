@@ -3,7 +3,7 @@ import primaryData from './data/primary-schools.json'
 import type { School } from './types'
 
 /**
- * School pool for JUMP / jump.hk-style job hunt and TA placement.
+ * School pool for 跳跳網-style job hunt and TA placement.
  *
  * Full lists imported from CHSC 學校概覽 (linked from EDB school-info hub).
  * @see https://www.edb.gov.hk/tc/student-parents/sch-info/about-sch-info/index.html

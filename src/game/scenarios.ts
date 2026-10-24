@@ -36,13 +36,13 @@ export function buildOriginTurn(state: GameState): TurnContent {
   const o = state.origin!
   return {
     title: '第一階段：出身抽取',
-    narrative: `系統為你擲出 1 in 80 Billion 的命運骰子。你畢業於${o.university}，主修${o.major}，公開試為${o.exam}（${o.examLabel}）。履歷上寫著「未有 PGDE」——${o.pgdeNote}。教員室老師會說你「仲係 fresh grad」，但其實你已經在補習社教了兩年，只是唔敢寫落 CV。下一步：睇 JUMP，決定衝小學定中學戰場。`,
+    narrative: `系統為你擲出 1 in 80 Billion 的命運骰子。你畢業於${o.university}，主修${o.major}，公開試為${o.exam}（${o.examLabel}）。履歷上寫著「未有 PGDE」——${o.pgdeNote}。教員室老師會說你「仲係 fresh grad」，但其實你已經在補習社教了兩年，只是唔敢寫落 CV。下一步：睇跳跳網，決定衝小學定中學戰場。`,
     percentileLines: [
       `全港分位：你的公開試成績打敗了 ${o.percentile}% 考生`,
       o.pgdeNote,
     ],
     choices: [
-      choice('continue', '繼續 → 睇 JUMP', '前往選擇小學或中學路線', 100, '無代價', {
+      choice('continue', '繼續 → 睇跳跳網', '前往選擇小學或中學路線', 100, '無代價', {
         大成功: { passion: 2 },
         成功: {},
         失敗: {},
@@ -55,9 +55,9 @@ export function buildOriginTurn(state: GameState): TurnContent {
 
 export function buildJumpTurn(): TurnContent {
   return {
-    title: '睇 JUMP（Jobs for Teachers）',
+    title: '睇跳跳網',
     narrative:
-      '你登入教育局 Jobs for Teachers 平台（教師招聘網 jump.hk）：篩選「津貼／資助」「直資」職位，略過官立同國際學校。凌晨三點頁面仍會更新——小學職位多但「八達通老師」傳言不絕；中學薪金靚但遴選委會會問到你靈魂深處。名單來自教育局學校資料入口所連結的 CHSC 學校概覽（津貼／資助及直資 DSS）。先選路線，下一步會顯示模擬招聘廣告，再進入投書、等回覆、面試志願流程。',
+      '你登入跳跳網：篩選「津貼／資助」「直資」職位，略過官立同國際學校。凌晨三點頁面仍會更新——小學職位多但「八達通老師」傳言不絕；中學薪金靚但 second in 委會會問到你靈魂深處。名單來自教育局學校資料入口所連結的 CHSC 學校概覽（津貼／資助及直資 DSS）。先選路線，下一步會顯示模擬招聘廣告，再進入投書、等回覆、面試志願流程。',
     choices: [
       choice('pri', '【小學】', '申請小學教席路線', 100, '無代價', emptyEffects),
       choice('sec', '【中學】', '申請中學教席路線', 100, '無代價', emptyEffects),
@@ -85,8 +85,8 @@ export function buildJumpBrowseTurn(
 ): TurnContent {
   const list = adLines.map((line, i) => `${i + 1}. ${line}`).join('\n')
   return {
-    title: 'jump.hk · 招聘廣告列',
-    narrative: `你設定搜尋：${level} · 合約／常額教席。系統列出最新職位（樣本廣告，非即時抓取 jump.hk）：\n${list}\n\n現實裡每個職位都要上載履歷、教學理念、推薦信；校方或 HR 公司會篩選才邀請面試。你可以「投書並等回覆」，或再刷新頁面碰運氣（純敘事，不影響難度）。`,
+    title: '跳跳網 · 招聘廣告列',
+    narrative: `你設定搜尋：${level} · 合約／常額教席。跳跳網列出最新職位（樣本廣告，非即時抓取外部網站）：\n${list}\n\n現實裡每個職位都要上載履歷、教學理念、推薦信；校方或 HR 公司會篩選才邀請面試。你可以「投書並等回覆」，或再刷新頁面碰運氣（純敘事，不影響難度）。`,
     percentileLines: [
       '全港教席空缺競爭：Band 1 學校常見每職數十至上百份申請',
       '資料來源：學校名稱及地區對照 CHSC 學校概覽',
@@ -95,7 +95,7 @@ export function buildJumpBrowseTurn(
       choice(
         'jump_apply',
         '[投書] 鎖定三間志願等回覆',
-        '進入等待與遴選',
+        '進入等待 second in',
         100,
         'SAN -3（焦慮）',
         {
@@ -125,8 +125,8 @@ export function buildJumpBrowseTurn(
 
 export function buildJumpWaitingTurn(level: '小學' | '中學'): TurnContent {
   return {
-    title: 'jump.hk · 等回覆',
-    narrative: `過了一星期，電郵信箱靜默，WhatsApp 只有補習社廣告。${level} 招聘旺季，HR 話「正在處理大量申請」。終於有三間學校願意安排遴選委面試——未必係你投書嗰三間，但地區同類型符合你篩選。現實中有人等兩星期、有人兩個月；你嘅 SAN 已經先扣一截。`,
+    title: '跳跳網 · 等回覆',
+    narrative: `過了一星期，電郵信箱靜默，WhatsApp 只有補習社廣告。${level} 招聘旺季，HR 話「正在處理大量申請」。終於有三間學校願意安排 second in——未必係你投書嗰三間，但地區同類型符合你篩選。現實中有人等兩星期、有人兩個月；你嘅 SAN 已經先扣一截。`,
     percentileLines: [
       '獲邀面試率（新畢業生）：約 15%–35%，視學科與學校',
       '下一關：地獄面試三部曲',
@@ -208,7 +208,7 @@ export function buildPanelInterview(
 ): TurnContent {
   const drawn = drawPanelQuestion(school, rng, reInterview)
   return {
-    title: reInterview ? '面試 I：原校內聘 Panel（重新遴選）' : '面試 I：科主任 Panel',
+    title: reInterview ? '面試 I：原校內聘 Panel（重新 second in）' : '面試 I：科主任 Panel',
     narrative: `${drawn.narrative} 你可以硬「面試扮識」引用最新教育潮語，或者誠實承認不足並展示教案。`,
     percentileLines: drawn.percentileLines,
     choices: [
@@ -776,7 +776,7 @@ const careerEvents: CareerEventBuilder[] = [
         失敗: { renewPerm: -10, san: -16 },
         大失敗: { renewPerm: -18, principal: -15 },
       }),
-      choice('jump', '[跳船] 即刻更新 JUMP', '轉校', 48, '人緣 -5', {
+      choice('jump', '[跳船] 即刻更新跳跳網', '轉校', 48, '人緣 -5', {
         大成功: { san: 12, passion: 8 },
         成功: { san: 5 },
         失敗: { colleague: -15, principal: -12 },
@@ -850,7 +850,7 @@ const taCareerEvents: CareerEventBuilder[] = [
       band: 0,
       funding: '津貼/資助',
       difficulty: 0,
-    })} 做 TA 已一段時間。科主任拍你膊頭：「下學年可能有合約位，你可以報 jump.hk，或者走內部推薦。」但人事部補充：即使原校升教席，多數仍要重新遴選面試——「程序要對外講得通」。`,
+    })} 做 TA 已一段時間。科主任拍你膊頭：「下學年可能有合約位，你可以報跳跳網，或者走內部推薦。」但人事部補充：即使原校升教席，多數仍要重新 second in——「程序要對外講得通」。`,
     percentileLines: [
       '原校 TA 轉教席：約 75%–85% 仍須重新面試',
       `全港 TA 晉升教席：約 12%–18%`,
@@ -871,8 +871,8 @@ const taCareerEvents: CareerEventBuilder[] = [
       ),
       choice(
         'ta_jump_hunt',
-        '[JUMP] 對外投書其他學校',
-        'jump.hk 流程',
+        '[跳跳網] 對外投書其他學校',
+        '跳跳網流程',
         62,
         'SAN -5',
         {
@@ -899,8 +899,8 @@ const taCareerEvents: CareerEventBuilder[] = [
     allowCustom: true,
   }),
   (state, rng) => ({
-    title: 'jump.hk 通知：另一間學校邀面試',
-    narrative: `你趁放學後刷新 jump.hk，竟有一間 ${state.jumpLevel ?? '中學'} 職位回覆「安排遴選」。唔係你任職嘅 ${state.schoolName}（${state.schoolDistrict}），但車程尚可。TA 同事話：「你一走，影印房冇人守。」`,
+    title: '跳跳網通知：另一間學校邀面試',
+    narrative: `你趁放學後刷新跳跳網，竟有一間 ${state.jumpLevel ?? '中學'} 職位回覆「second in」。唔係你任職嘅 ${state.schoolName}（${state.schoolDistrict}），但車程尚可。TA 同事話：「你一走，影印房冇人守。」`,
     percentileLines: [`獲邀面試分位：${randomInt(rng, 30, 65)}%`],
     choices: [
       choice('ta_jump_hunt', '[應徵] 準備面試三部曲', '離開 TA 搏教席', 58, 'SAN -10', {

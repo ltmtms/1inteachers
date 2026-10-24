@@ -99,7 +99,7 @@ export interface GameState {
   schoolType: string
   /** TA 任職學校（完整資料，供原校升教席等） */
   taSchool: School | null
-  /** 本輪面試是否為原校 TA 重新遴選 */
+  /** 本輪面試是否為原校 TA 重新 second in */
   interviewIsReInterview: boolean
   jumpAds: string[]
   passion: number

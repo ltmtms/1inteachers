@@ -2,7 +2,7 @@ import { PRIMARY_SCHOOLS, SECONDARY_SCHOOLS, schoolTypeLabel } from './constants
 import type { School } from './types'
 import { pickOne, randomInt } from './rng'
 
-/** Static sample postings styled after Jobs for Teachers (jump.hk); not fetched at runtime. */
+/** Static sample postings for in-game 跳跳網 (inspired by jump.hk); not fetched at runtime. */
 export type JumpAd = {
   id: string
   school: School
@@ -47,11 +47,11 @@ function makeAd(
     contract,
     postedDaysAgo: randomInt(rng, 1, 21),
     applicantsNote: pickOne(rng, [
-      '校方註明：遴選委面試',
+      '校方註明：須經 second in 面試',
       '需試教 15–20 分鐘',
       '歡迎具 PGDE 或修讀中',
       '請附教學影片連結（如有）',
-      'TA 亦可申請（須通過遴選）',
+      'TA 亦可申請（須通過 second in）',
     ]),
   }
 }

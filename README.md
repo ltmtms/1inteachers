@@ -83,8 +83,8 @@ jobs:
 ## 玩法摘要
 
 1. **開始** → 自動出身抽取（大學、公開試百分位、主修、未有 PGDE）。
-2. **睇 JUMP（jump.hk）** → 選小學或中學 → 瀏覽模擬招聘廣告 → 投書等回覆 → 抽三間學校面試志願 → 面試三部曲或轉下一間；全敗則落到該校／同類學校做 **TA（$17k）**，狀態列顯示**學校名稱 + 地區**。
-3. **TA 晉升教席** → 職場事件可「原校內聘」或再上 jump.hk；**原校升教席約 75%–85% 仍須重新面試**（少數無面試內聘），面試題庫會隨機抽題。
+2. **睇跳跳網** → 選小學或中學 → 瀏覽模擬招聘廣告 → 投書等回覆 → 抽三間學校面試志願 → 面試三部曲或轉下一間；全敗則落到該校／同類學校做 **TA（$17k）**，狀態列顯示**學校名稱 + 地區**。
+3. **TA 晉升教席** → 職場事件可「原校內聘」或再上跳跳網；**原校升教席約 75%–85% 仍須重新面試**（少數無面試內聘），面試題庫會隨機抽題。
 4. **校園修羅場** → 隨機事件（出卷、SBA、執業牌照 CPD、數碼進修、AI 作弊疑雲、殺班寒冬、解約大逃殺、群組投訴、校本系統義工…）。
 5. **學校功能組別** → 入職後可加入六大功能組，組別專屬事件約佔職場回合一半；狀態面板顯示「在校年資」與「功能組別」。
 6. **結局**：SAN 歸零、不續約失業、常額位勝利、轉行等。
@@ -120,7 +120,7 @@ jobs:
 | 中學 | [SSP 2025 學校概覽](https://www.chsc.hk/ssp2025/) | 2026-10-24 |
 | 小學 | [PSP 2026 學校概覽](https://www.chsc.hk/psp2026/) | 2026-10-24 |
 
-已提交於 `src/game/data/secondary-schools.json`、`src/game/data/primary-schools.json`（由 `npm run import:schools` 可重新產生）。欄位包括校名、地區、資助類別、中學派位組別（Band 1–3，遊戲用）、以及辦學宗旨／校訓摘錄（`profileNote`）。教師招聘流程敘事參考 **Jobs for Teachers（jump.hk）**；遊戲內廣告為靜態樣本，**不會**在運行時抓取 jump.hk。見 `src/game/jumpAds.ts`、`src/game/interviewQuestions.ts`。
+已提交於 `src/game/data/secondary-schools.json`、`src/game/data/primary-schools.json`（由 `npm run import:schools` 可重新產生）。欄位包括校名、地區、資助類別、中學派位組別（Band 1–3，遊戲用）、以及辦學宗旨／校訓摘錄（`profileNote`）。遊戲內教師招聘平台名稱為 **跳跳網**；流程設計受現實 **Jobs for Teachers（jump.hk）** 啟發，廣告為靜態樣本，**不會**在運行時抓取外部網站。見 `src/game/jumpAds.ts`、`src/game/interviewQuestions.ts`。
 
 ## 教師薪級（MPS）資料來源
 
