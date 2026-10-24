@@ -83,10 +83,11 @@ jobs:
 ## 玩法摘要
 
 1. **開始** → 自動出身抽取（大學、公開試百分位、主修、未有 PGDE）。
-2. **睇 JUMP** → 選小學或中學 → 抽三間學校 → 面試三部曲或轉下一間；全敗則 TA（$17k）。
-3. **校園修羅場** → 隨機事件（出卷、SBA、執業牌照 CPD、數碼進修、AI 作弊疑雲、殺班寒冬、解約大逃殺、群組投訴、校本系統義工…）。
-4. **學校功能組別** → 入職後可加入六大功能組，組別專屬事件約佔職場回合一半；狀態面板顯示「在校年資」與「功能組別」。
-5. **結局**：SAN 歸零、不續約失業、常額位勝利、轉行等。
+2. **睇 JUMP（jump.hk）** → 選小學或中學 → 瀏覽模擬招聘廣告 → 投書等回覆 → 抽三間學校面試志願 → 面試三部曲或轉下一間；全敗則落到該校／同類學校做 **TA（$17k）**，狀態列顯示**學校名稱 + 地區**。
+3. **TA 晉升教席** → 職場事件可「原校內聘」或再上 jump.hk；**原校升教席約 75%–85% 仍須重新面試**（少數無面試內聘），面試題庫會隨機抽題。
+4. **校園修羅場** → 隨機事件（出卷、SBA、執業牌照 CPD、數碼進修、AI 作弊疑雲、殺班寒冬、解約大逃殺、群組投訴、校本系統義工…）。
+5. **學校功能組別** → 入職後可加入六大功能組，組別專屬事件約佔職場回合一半；狀態面板顯示「在校年資」與「功能組別」。
+6. **結局**：SAN 歸零、不續約失業、常額位勝利、轉行等。
 
 ### 學校功能組別
 
@@ -112,7 +113,7 @@ jobs:
 
 遊戲內可抽籤的學校僅包含香港**津貼／資助**及**直資（DSS）**中小學，不含官立、私立或國際學校。
 
-中學參考組別（Band 1／2／3）及資助類別整理自 [StarSchools 全港中學 Banding 一覽](https://starschools.hk/admission/banding) 與 [香港中學一覽](https://starschools.hk/schools/directory/secondary)；小學名單參考 [香港小學一覽](https://starschools.hk/schools/directory/primary)。StarSchools 註明組別為參考性質，並非教育局官方學校標籤。完整欄位與引用見 `src/game/schools.ts`。
+學校**名稱、地區（18 區）、辦學團體／語文**等簡介對照教育局 **CHSC 學校概覽**：[https://www.chsc.hk/](https://www.chsc.hk/)（中小學概覽頁）。中學參考組別（Band 1／2／3） gameplay 難度仍參考 [StarSchools Banding](https://starschools.hk/admission/banding)（非教育局官方標籤）。教師招聘流程敘事參考 **Jobs for Teachers（jump.hk）** 常見投書、等回覆、遴選委面試步驟；遊戲內廣告為靜態樣本，**不會**在運行時抓取 jump.hk。完整欄位見 `src/game/schools.ts`、`src/game/jumpAds.ts`；面試題庫見 `src/game/interviewQuestions.ts`。
 
 ## 新聞情境來源（Sources）
 

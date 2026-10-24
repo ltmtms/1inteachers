@@ -1,5 +1,6 @@
 import { mpsSalary } from './constants'
-import type { GameState, Judgment, Rank, StatDelta } from './types'
+import { schoolLocationLabel, schoolTypeLabel } from './schools'
+import type { GameState, Judgment, Rank, School, StatDelta } from './types'
 
 export function clampStat(n: number, min = 0, max = 100): number {
   return Math.max(min, Math.min(max, Math.round(n)))
@@ -20,7 +21,11 @@ export function createInitialState(seed?: number): GameState {
     mpsPoint: 0,
     salary: 0,
     schoolName: '—',
+    schoolDistrict: '—',
     schoolType: '—',
+    taSchool: null,
+    interviewIsReInterview: false,
+    jumpAds: [],
     passion: 70,
     san: 85,
     principal: 40,
@@ -59,36 +64,50 @@ export function applyDelta(state: GameState, delta: StatDelta): GameState {
 
 export function setContractJob(
   state: GameState,
-  schoolName: string,
-  schoolType: string,
-  band: number,
+  school: School,
 ): GameState {
-  const mps = band === 1 ? 18 : band === 2 ? 16 : 14
-  const baseRenew = band === 1 ? 22 : band === 2 ? 35 : 48
+  const mps = school.band === 1 ? 18 : school.band === 2 ? 16 : 14
+  const baseRenew = school.band === 1 ? 22 : school.band === 2 ? 35 : 48
   return {
     ...state,
     rank: '合約教席',
     mpsPoint: mps,
     salary: mpsSalary(mps),
-    schoolName,
-    schoolType,
+    schoolName: school.name,
+    schoolDistrict: school.district,
+    schoolType: schoolTypeLabel(school),
+    taSchool: null,
     renewPerm: baseRenew,
     passion: clampStat(state.passion + 5),
   }
 }
 
-export function setTAJob(state: GameState): GameState {
+export function setTAJob(state: GameState, school: School): GameState {
   return {
     ...state,
     rank: 'TA',
     mpsPoint: 0,
     salary: mpsSalary(0),
-    schoolName: '某 Band 2 津貼中學',
-    schoolType: 'Band 2 津貼',
+    schoolName: school.name,
+    schoolDistrict: school.district,
+    schoolType: schoolTypeLabel(school),
+    taSchool: school,
     renewPerm: 8,
     passion: clampStat(state.passion - 15),
     san: clampStat(state.san - 10),
   }
+}
+
+export function formatSchoolStatus(state: GameState): string {
+  if (state.schoolName === '—') return '—'
+  const loc = schoolLocationLabel({
+    name: state.schoolName,
+    district: state.schoolDistrict,
+    band: 0,
+    funding: '津貼/資助',
+    difficulty: 0,
+  })
+  return `${loc} · ${state.schoolType}`
 }
 
 export function judgeOutcome(successRate: number, roll: number): Judgment {
@@ -130,9 +149,16 @@ export function migrateGameState(state: GameState): GameState {
   const yearsAtSchool =
     state.yearsAtSchool ??
     (state.phase === 'career' ? Math.max(0, state.careerTurns) : 0)
+  const schoolDistrict =
+    state.schoolDistrict ??
+    (state.taSchool?.district ?? '—')
   return {
     ...state,
     yearsAtSchool,
+    schoolDistrict,
+    taSchool: state.taSchool ?? null,
+    interviewIsReInterview: state.interviewIsReInterview ?? false,
+    jumpAds: state.jumpAds ?? [],
     functionalGroup: state.functionalGroup ?? null,
     functionalGroupOptOut: state.functionalGroupOptOut ?? false,
     adminInviteResolved: state.adminInviteResolved ?? false,

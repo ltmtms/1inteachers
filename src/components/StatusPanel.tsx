@@ -1,5 +1,5 @@
 import { functionalGroupLabel } from '../game/functionalGroups'
-import { rankLabel } from '../game/state'
+import { formatSchoolStatus, rankLabel } from '../game/state'
 import type { GameState } from '../game/types'
 
 export function StatusPanel({ state }: { state: GameState }) {
@@ -10,10 +10,16 @@ export function StatusPanel({ state }: { state: GameState }) {
         ? '月薪 $17,000（TA）'
         : '—'
 
+  const schoolRowLabel = state.rank === 'TA' ? '任教學校（TA）' : '任教學校'
+  const schoolRowValue = formatSchoolStatus(state)
+
   const rows = [
     ['職級', rankLabel(state.rank)],
     ['月薪', salary],
-    ['任教學校', `${state.schoolName}（${state.schoolType}）`],
+    [schoolRowLabel, schoolRowValue],
+    ...(state.rank === 'TA'
+      ? [['所在地區', state.schoolDistrict !== '—' ? state.schoolDistrict : '—']]
+      : []),
     ...(state.phase === 'career' || state.phase === 'ending'
       ? [
           ['在校年資', `${state.yearsAtSchool} 年`],
