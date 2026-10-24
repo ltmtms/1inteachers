@@ -57,7 +57,7 @@ function rollOrigin(rng: () => number): Origin {
   }
 }
 
-/** 原校 TA 升教席：多數仍須公開遴選面試 */
+/** 原校 TA 升教席：多數仍須公開 second in 面試 */
 const TA_SAME_SCHOOL_REINTERVIEW_RATE = 0.82
 
 function pickTAPlacementSchool(state: GameState, rng: () => number): School {
@@ -173,7 +173,7 @@ function finalizeCareer(state: GameState, rng: () => number): GameState {
         salary: 0,
         endingTitle: '結局：不續約 — 失業',
         endingNarrative:
-          '暑假一封短訊：「感謝你過去嘅貢獻，合約不予續約。」JUMP 又要重新登入，TA 職位竟爭激烈過以前。你開始懷疑「全人教育」係咪淨係口號。',
+          '暑假一封短訊：「感謝你過去嘅貢獻，合約不予續約。」跳跳網又要重新登入，TA 職位竟爭激烈過以前。你開始懷疑「全人教育」係咪淨係口號。',
         currentTurn: null,
       }
     }
@@ -270,7 +270,7 @@ export function resolveChoice(
           next.currentTurn = {
             title: '全軍覆沒 — 強制 TA',
             narrative:
-              `三間學校都無你份，或者你選擇放棄。人事部安排你到 ${taSchool.name}（${taSchool.district}）做教學助理：月薪 $17,000，日常印卷、整水機、維護學校網頁。科主任話「做熟咗可以推薦你再報 jump.hk 教席」——但多數仍要重新面試。`,
+              `三間學校都無你份，或者你選擇放棄。人事部安排你到 ${taSchool.name}（${taSchool.district}）做教學助理：月薪 $17,000，日常印卷、整水機、維護學校網頁。科主任話「做熟咗可以推薦你再報跳跳網教席」——但多數仍要重新 second in。`,
             percentileLines: ['TA 晉升教席機率：全港約 12%–18%'],
             choices: [
               {
@@ -450,7 +450,7 @@ export function resolveChoice(
           next.currentSchoolIndex = 0
           next.phase = 'career'
           next.currentTurn = {
-            title: '原校升教席 — 重新遴選',
+            title: '原校升教席 — 重新 second in',
             narrative: `人事部電郵：「雖然你係本校 TA，教席招聘仍須公開程序。」你要再走面試三部曲；校內傳言「熟口面」唔代表過關。學校：${next.taSchool.name}（${next.taSchool.district}）。`,
             percentileLines: [
               '全港原校 TA 內聘：約 75%–85% 須重新面試',

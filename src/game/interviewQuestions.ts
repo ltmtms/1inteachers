@@ -179,7 +179,7 @@ export function drawPanelQuestion(
     narrative: `「${school.name}」（${school.district}）會議室冷氣過猛。${sponsor}科主任拋題：「${q.prompt}」${q.context}`,
     percentileLines: [
       `Panel 滿意度基準線：全港前 ${randomInt(rng, 22, 48)}% 申請者`,
-      reInterview ? '內部轉聘：仍須通過公開遴選程序' : '遴選委員會至少三名教師代表',
+      reInterview ? '內部轉聘：仍須通過公開 second in 程序' : 'second in 委員會至少三名教師代表',
     ],
   }
 }
