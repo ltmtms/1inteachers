@@ -65,16 +65,16 @@ export function GameScreen({ initialSeed }: Props) {
         </p>
         <p className="mt-6 text-sm leading-relaxed text-[var(--text-muted)]">
           黑色幽默 · 高難度 RNG · 百分位標籤 · 地獄面試三部曲 · 校園修羅場。
-          客戶端存檔，無需登入。學校名單僅含津貼／資助及直資（DSS），組別參考{' '}
+          客戶端存檔，無需登入。學校名單來自{' '}
           <a
-            href="https://starschools.hk/admission/banding"
+            href="https://www.edb.gov.hk/tc/student-parents/sch-info/about-sch-info/index.html"
             className="text-[var(--accent)] underline-offset-2 hover:underline"
             target="_blank"
             rel="noreferrer"
           >
-            StarSchools
+            教育局學校資料
           </a>
-          。
+          所連結的 CHSC 學校概覽（津貼／資助及直資 DSS）。
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <button

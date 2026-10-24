@@ -1,9 +1,18 @@
 export {
   PRIMARY_SCHOOLS,
   SECONDARY_SCHOOLS,
+  SCHOOL_DATA_META,
+  schoolDisplayName,
   schoolLocationLabel,
   schoolTypeLabel,
 } from './schools'
+
+export {
+  entryMpsPoint,
+  formatSalaryStatus,
+  mpsMonthlySalary,
+  TA_MONTHLY_SALARY,
+} from './salaryScale'
 
 export const UNIVERSITIES = [
   '香港大學 (HKU)',
@@ -26,22 +35,5 @@ export const MAJORS = [
   '科學／STEM',
   '公社科',
 ]
-
-export function mpsSalary(point: number): number {
-  const table: Record<number, number> = {
-    0: 17000,
-    14: 28405,
-    16: 31070,
-    18: 33990,
-    20: 37170,
-    24: 44110,
-    28: 52360,
-    32: 62150,
-    34: 68960,
-  }
-  if (table[point]) return table[point]
-  if (point < 14) return 17000
-  return 68960 + (point - 34) * 2200
-}
 
 export const PGDE_RATE_TEXT = '全日制 PGDE 錄取率：約 5%–12%（視學科與面試表現）'

@@ -1,3 +1,5 @@
+import type { TeacherSalaryTrack } from './salaryScale'
+
 export type Judgment = '大成功' | '成功' | '失敗' | '大失敗'
 
 export type Rank = '待業' | 'TA' | '合約教席' | '常額位'
@@ -35,13 +37,13 @@ export type SchoolFunding = '津貼/資助' | '直資 (DSS)'
 
 export interface School {
   name: string
-  /** 18 districts / 地區 from EDB school profile. */
+  /** 18 區／地區（CHSC 學校概覽） */
   district: string
-  /** Reference band (中學) or gameplay tier (小學). */
+  /** 中學：CHSC 派位組別參考；小學：聯繫／校風 gameplay tier */
   band: 1 | 2 | 3 | 0
   funding: SchoolFunding
   difficulty: number
-  /** Short note from 學校概覽 (辦學團體、語文等). */
+  /** 辦學宗旨或校訓（CHSC 學校概覽摘錄） */
   profileNote?: string
 }
 
@@ -91,6 +93,7 @@ export interface GameState {
   rank: Rank
   mpsPoint: number
   salary: number
+  salaryTrack: TeacherSalaryTrack | null
   schoolName: string
   schoolDistrict: string
   schoolType: string

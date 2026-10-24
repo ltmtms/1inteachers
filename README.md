@@ -111,9 +111,20 @@ jobs:
 
 ## 學校資料來源
 
-遊戲內可抽籤的學校僅包含香港**津貼／資助**及**直資（DSS）**中小學，不含官立、私立或國際學校。
+遊戲內可抽籤的學校僅包含香港**津貼／資助**、**按位津貼**及**直資（DSS）**中小學，不含官立、私立或國際學校。
 
-學校**名稱、地區（18 區）、辦學團體／語文**等簡介對照教育局 **CHSC 學校概覽**：[https://www.chsc.hk/](https://www.chsc.hk/)（中小學概覽頁）。中學參考組別（Band 1／2／3） gameplay 難度仍參考 [StarSchools Banding](https://starschools.hk/admission/banding)（非教育局官方標籤）。教師招聘流程敘事參考 **Jobs for Teachers（jump.hk）** 常見投書、等回覆、遴選委面試步驟；遊戲內廣告為靜態樣本，**不會**在運行時抓取 jump.hk。完整欄位見 `src/game/schools.ts`、`src/game/jumpAds.ts`；面試題庫見 `src/game/interviewQuestions.ts`。
+資料自 [教育局 — 學校資料](https://www.edb.gov.hk/tc/student-parents/sch-info/about-sch-info/index.html) 所連結的 **CHSC 學校概覽**匯入：
+
+| 學段 | CHSC 來源 | 匯入日期 |
+| --- | --- | --- |
+| 中學 | [SSP 2025 學校概覽](https://www.chsc.hk/ssp2025/) | 2026-10-24 |
+| 小學 | [PSP 2026 學校概覽](https://www.chsc.hk/psp2026/) | 2026-10-24 |
+
+已提交於 `src/game/data/secondary-schools.json`、`src/game/data/primary-schools.json`（由 `npm run import:schools` 可重新產生）。欄位包括校名、地區、資助類別、中學派位組別（Band 1–3，遊戲用）、以及辦學宗旨／校訓摘錄（`profileNote`）。教師招聘流程敘事參考 **Jobs for Teachers（jump.hk）**；遊戲內廣告為靜態樣本，**不會**在運行時抓取 jump.hk。見 `src/game/jumpAds.ts`、`src/game/interviewQuestions.ts`。
+
+## 教師薪級（MPS）資料來源
+
+合約教席／常額位月薪依 [教聯會教師薪級表（2026年4月1日生效）](https://hkfew.org.hk/en/%E6%AC%8A%E7%9B%8A/%E8%96%AA%E6%B4%A5-%E5%85%AC%E7%A9%8D%E9%87%91/item/12540-%E6%95%99%E5%B8%AB%E8%96%AA%E7%B4%9A%E8%A1%A8-2026%E5%B9%B44%E6%9C%881%E6%97%A5%E7%94%9F%E6%95%88) 編碼於 `src/game/salaryScale.ts`。遊戲簡化：小學路線為 APSM、中學為 GM，PGDE 起薪點 +2；在校年資每兩年遞增一 MPS 點直至合約上限。TA 月薪 $17,000（非 MPS，遊戲設定）。
 
 ## 新聞情境來源（Sources）
 
